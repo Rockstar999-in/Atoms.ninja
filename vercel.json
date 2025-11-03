@@ -1,23 +1,71 @@
 {
   "version": 2,
-  "name": "atoms-ninja-backend",
+  "name": "atoms-ninja",
+  "alias": ["atoms.ninja", "www.atoms.ninja"],
   "builds": [
     {
       "src": "gemini-proxy.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "styles.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "script.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "config.js",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/health",
+      "src": "/api/health",
       "dest": "gemini-proxy.js"
     },
     {
-      "src": "/api/(.*)",
+      "src": "/api/gemini",
+      "dest": "gemini-proxy.js",
+      "methods": ["POST", "OPTIONS"]
+    },
+    {
+      "src": "/api/kali",
       "dest": "gemini-proxy.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ],
   "env": {
-    "NODE_ENV": "production"
-  }
+    "NODE_ENV": "production",
+    "GEMINI_API_KEY": "@gemini-api-key",
+    "KALI_MCP_ENDPOINT": "http://136.113.58.241:3001",
+    "ALLOWED_ORIGINS": "https://atoms.ninja,https://www.atoms.ninja,http://localhost:8000"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
 }

@@ -3,12 +3,12 @@ const CONFIG = {
     // Backend API (Gemini Proxy)
     BACKEND_API_URL: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3001' 
-        : 'https://atoms-dun.vercel.app',
+        : 'https://atoms.ninja/api',
     
     // Kali Linux MCP Server (GCP VM)
     KALI_MCP_ENDPOINT: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://136.113.58.241:3001'
-        : 'https://atoms-dun.vercel.app/api/kali',
+        : 'https://atoms.ninja/api/kali',
     
     // GCP Configuration
     GCP: {

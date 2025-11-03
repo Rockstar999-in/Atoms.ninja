@@ -17,11 +17,11 @@ const CONFIG = {
     GEMINI_API_KEY: '', // Not needed - using backend proxy
     BACKEND_API_URL: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3001' 
-        : 'https://atoms-dun.vercel.app', // Production backend URL
+        : 'https://atoms.ninja/api', // Production backend URL
     // Use HTTPS proxy for MCP to avoid mixed content issues
     KALI_MCP_ENDPOINT: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://136.113.58.241:3001' // Kali MCP Server VM
-        : 'https://atoms-dun.vercel.app/api/kali' // Proxy in production
+        : 'https://atoms.ninja/api/kali' // Proxy in production
 };
 
 // Terminal functionality

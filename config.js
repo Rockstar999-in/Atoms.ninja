@@ -1,51 +1,34 @@
-// Atoms Ninja Configuration
-// Replace with your actual API keys
-
-const AtomsNinjaConfig = {
-    // Google Gemini AI Configuration
-    gemini: {
-        apiKey: '', // DO NOT SET HERE - API key is managed by backend proxy server
-        model: 'gemini-pro',
-        endpoint: 'https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent'
+// Atoms Ninja - Configuration
+const CONFIG = {
+    // Backend API (Gemini Proxy)
+    BACKEND_API_URL: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3001' 
+        : 'https://atoms-dun.vercel.app',
+    
+    // Kali Linux MCP Server (GCP VM)
+    KALI_MCP_ENDPOINT: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://136.113.58.241:3001'
+        : 'https://atoms-dun.vercel.app/api/kali',
+    
+    // GCP Configuration
+    GCP: {
+        PROJECT_ID: 'gen-lang-client-0528385692',
+        VM_INSTANCE: 'atoms-kali-security',
+        VM_IP: '136.113.58.241',
+        REGION: 'us-central1'
     },
     
-    // Kali Linux MCP Server Configuration
-    kaliMCP: {
-        endpoint: 'http://136.113.58.241:3001',
-        timeout: 30000,
-        maxRetries: 3
+    // Service Accounts
+    SERVICE_ACCOUNTS: {
+        VERTEX_AI: 'gen-lang-client-0528385692-a54ea848daea.json',
+        OWNER: 'gen-lang-client-0528385692-8f8d2551426e.json'
     },
     
-    // Security Settings
-    security: {
-        enableLogging: true,
-        maxCommandLength: 1000,
-        commandTimeout: 60000,
-        allowedCommands: [
-            'nmap', 'scan', 'metasploit', 'msfconsole', 'wireshark',
-            'burp', 'sqlmap', 'nikto', 'aircrack', 'hydra',
-            'john', 'hashcat', 'forensic', 'autopsy', 'volatility'
-        ]
-    },
-    
-    // UI Settings
-    ui: {
-        theme: 'dark',
-        terminalLines: 100,
-        animationSpeed: 300
-    }
+    // API Keys
+    GEMINI_API_KEY: 'AIzaSyDzGlemhn-AEP5G8F0UrHuD6gWr97RV0YQ'
 };
 
-// Initialize configuration
-if (typeof window !== 'undefined') {
-    window.AtomsNinjaConfig = AtomsNinjaConfig;
-    
-    // Helper function to set API key
-    window.configureGeminiAPI = function(apiKey) {
-        AtomsNinjaConfig.gemini.apiKey = apiKey;
-        if (typeof CONFIG !== 'undefined') {
-            CONFIG.GEMINI_API_KEY = apiKey;
-        }
-        console.log('%c✓ Gemini API configured!', 'color: #10B981; font-weight: bold;');
-    };
+// Export for use in other scripts
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = CONFIG;
 }

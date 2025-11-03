@@ -20,7 +20,7 @@ const CONFIG = {
         : 'https://atoms-dun.vercel.app', // Production backend URL
     // Use HTTPS proxy for MCP to avoid mixed content issues
     KALI_MCP_ENDPOINT: window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://136.113.58.241:3001' // Direct connection in local dev
+        ? 'http://136.113.58.241:3001' // Kali MCP Server VM
         : 'https://atoms-dun.vercel.app/api/kali' // Proxy in production
 };
 

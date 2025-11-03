@@ -1,0 +1,10 @@
+.vercel
+.env*.local
+node_modules/
+.env
+service-account.json
+*.log
+.DS_Store
+.netlify
+dist/
+build/

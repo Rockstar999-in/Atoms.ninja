@@ -1,0 +1,28 @@
+{
+  "name": "atoms-ninja-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy server for Atoms Ninja with Google Cloud Service Account authentication",
+  "main": "gemini-proxy.js",
+  "scripts": {
+    "start": "node gemini-proxy.js",
+    "dev": "nodemon gemini-proxy.js",
+    "test": "node gemini-proxy.js & sleep 2 && node test.js"
+  },
+  "keywords": ["gemini", "proxy", "cybersecurity", "atoms-ninja"],
+  "author": "Atoms Ninja Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "google-auth-library": "^9.0.0",
+    "node-fetch": "^2.7.0",
+    "express-rate-limit": "^7.1.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

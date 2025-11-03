@@ -1,0 +1,13 @@
+node_modules
+*.log
+.env
+.env.*
+service-account.json
+frontend/
+create-*.sh
+deploy-*.sh
+gcp-*.sh
+setup.sh
+*.md
+kali-mcp-server.js
+test.js

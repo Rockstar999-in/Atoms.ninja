@@ -1,6 +1,9 @@
 {
   "version": 2,
-  "alias": ["atoms.ninja", "www.atoms.ninja"],
+  "alias": [
+    "atoms.ninja",
+    "www.atoms.ninja"
+  ],
   "builds": [
     {
       "src": "gemini-proxy.js",
@@ -20,6 +23,10 @@
     },
     {
       "src": "config.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "speed-insights.js",
       "use": "@vercel/static"
     }
   ],

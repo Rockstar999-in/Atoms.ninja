@@ -1,3 +1,6 @@
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+
 // Smooth scroll for navigation links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -1215,4 +1218,7 @@ document.querySelectorAll('.quick-commands code').forEach(codeEl => {
         settingsModal.classList.remove('active');
         document.querySelector('.demo-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+});
+
+// End of DOMContentLoaded
 });

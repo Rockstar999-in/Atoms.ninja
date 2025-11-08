@@ -494,7 +494,22 @@ ${chatContext}
 
 User's request: "${command}"
 
-YOUR TASK: Analyze the user's intent and determine which security tool(s) to use.
+YOUR TASK: Analyze the user's intent and EXECUTE THE APPROPRIATE COMMAND. Don't just explain - take action!
+
+═══════════════════════════════════════════════════════════════════
+CRITICAL: ALWAYS PREFER ACTION OVER EXPLANATION
+═══════════════════════════════════════════════════════════════════
+
+When a user asks to:
+- "find", "detect", "discover", "scan", "check" → EXECUTE the appropriate tool
+- "what is", "how does", "explain" → ONLY THEN provide explanation
+
+EXAMPLES:
+❌ "find OS of 192.168.1.1" → Don't explain OS detection methods
+✅ "find OS of 192.168.1.1" → {"action": "execute", "command": "nmap -O 192.168.1.1", "explanation": "OS detection scan"}
+
+❌ "check ports on example.com" → Don't explain port scanning
+✅ "check ports on example.com" → {"action": "execute", "command": "nmap example.com", "explanation": "Port scan"}
 
 ═══════════════════════════════════════════════════════════════════
 INTELLIGENT TOOL SELECTION RULES:
@@ -507,7 +522,7 @@ PORT/HOST SCANNING:
 • "fast scan", "quick scan" → nmap -T4 -F
 • "stealth scan" → nmap -sS
 • "UDP scan" → nmap -sU
-• "OS detection", "what OS", "operating system" → nmap -O
+• "OS detection", "what OS", "find os", "detect os", "operating system" → nmap -O [target]
 • "service version", "what services" → nmap -sV
 • "aggressive scan", "full scan" → nmap -A
 

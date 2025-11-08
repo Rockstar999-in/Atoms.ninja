@@ -5,33 +5,36 @@
 }
 
 :root {
-    --color-bg: #0a0a0f;
-    --color-bg-secondary: #13131a;
-    --color-bg-tertiary: #1a1a24;
-    --color-text: #ffffff;
-    --color-text-secondary: #a0a0b0;
-    --color-purple: #8B5CF6;
-    --color-pink: #EC4899;
-    --color-blue: #3B82F6;
-    --color-orange: #F97316;
-    --color-green: #10B981;
-    --color-red: #EF4444;
-    --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-    --gradient-secondary: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-glow: 0 0 40px rgba(139, 92, 246, 0.3);
+    /* Cyberpunk Hacker Theme - Matrix Green */
+    --color-bg: #000000;
+    --color-bg-secondary: #001100;
+    --color-bg-tertiary: #002200;
+    --color-text: #00ff00;
+    --color-text-secondary: #00cc00;
+    --color-text-dim: #008800;
+    --color-neon-green: #00ff00;
+    --color-neon-bright: #00ff41;
+    --color-warning: #ff0000;
+    --color-success: #00ff00;
+    --gradient-primary: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+    --gradient-secondary: linear-gradient(135deg, #003300 0%, #001100 100%);
+    --shadow-sm: 0 0 10px rgba(0, 255, 0, 0.3);
+    --shadow-md: 0 0 20px rgba(0, 255, 0, 0.4);
+    --shadow-lg: 0 0 30px rgba(0, 255, 0, 0.5);
+    --shadow-glow: 0 0 40px rgba(0, 255, 0, 0.6), 0 0 80px rgba(0, 255, 0, 0.3);
+    --border-glow: 0 0 10px rgba(0, 255, 0, 0.8), inset 0 0 10px rgba(0, 255, 0, 0.2);
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: 'Courier New', Courier, monospace;
     background: var(--color-bg);
     color: var(--color-text);
     line-height: 1.6;
     overflow-x: hidden;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
+/* Matrix Rain Effect Background */
 body::before {
     content: '';
     position: fixed;
@@ -40,10 +43,21 @@ body::before {
     width: 100%;
     height: 100%;
     background: 
-        radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.03) 2px,
+            rgba(0, 255, 0, 0.03) 4px
+        );
     pointer-events: none;
     z-index: 0;
+    animation: scanlines 8s linear infinite;
+}
+
+@keyframes scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(20px); }
 }
 
 .container {
@@ -104,43 +118,50 @@ body::before {
 
 /* Buttons */
 button {
-    border: none;
+    border: 2px solid var(--color-neon-green);
     cursor: pointer;
-    font-family: inherit;
+    font-family: 'Courier New', monospace;
     font-weight: 600;
     transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: var(--color-bg);
+    color: var(--color-neon-green);
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 .btn-primary {
-    background: var(--gradient-primary);
-    color: white;
+    background: var(--color-bg);
+    color: var(--color-neon-green);
     padding: 12px 24px;
-    border-radius: 12px;
-    box-shadow: var(--shadow-sm);
+    border-radius: 4px;
+    box-shadow: var(--border-glow);
 }
 
 .btn-primary:hover {
+    background: var(--color-neon-green);
+    color: var(--color-bg);
     transform: translateY(-2px);
     box-shadow: var(--shadow-glow);
 }
 
 .btn-secondary {
     background: transparent;
-    color: var(--color-text);
+    color: var(--color-neon-green);
     padding: 12px 24px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    border: 2px solid var(--color-neon-green);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: var(--color-bg-secondary);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-large {
     padding: 16px 32px;
-    border-radius: 16px;
-    font-size: 16px;
+    border-radius: 4px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -148,18 +169,19 @@ button {
 
 .btn-outline {
     background: transparent;
-    color: var(--color-text);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: var(--color-neon-green);
+    border: 2px solid var(--color-neon-green);
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.4);
+    background: var(--color-bg-secondary);
+    box-shadow: var(--border-glow);
 }
 
 .btn-icon {
     width: 20px;
     height: 20px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.8));
 }
 
 /* Hero Section */
@@ -178,14 +200,17 @@ button {
 
 .badge {
     display: inline-block;
-    background: rgba(139, 92, 246, 0.1);
-    color: var(--color-purple);
+    background: var(--color-bg-secondary);
+    color: var(--color-neon-green);
     padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--color-neon-green);
+    font-size: 12px;
     font-weight: 600;
     margin-bottom: 24px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: var(--shadow-sm);
 }
 
 .hero-title {
@@ -193,20 +218,27 @@ button {
     font-weight: 800;
     line-height: 1.2;
     margin-bottom: 24px;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
 }
 
 .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-neon-green);
+    text-shadow: var(--shadow-glow);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { text-shadow: 0 0 20px rgba(0, 255, 0, 0.8), 0 0 40px rgba(0, 255, 0, 0.4); }
+    50% { text-shadow: 0 0 30px rgba(0, 255, 0, 1), 0 0 60px rgba(0, 255, 0, 0.6); }
 }
 
 .hero-description {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--color-text-secondary);
     margin-bottom: 32px;
     line-height: 1.8;
+    font-family: 'Courier New', monospace;
 }
 
 .hero-actions {
@@ -248,25 +280,25 @@ button {
 
 .demo-card {
     background: var(--color-bg-secondary);
-    border-radius: 24px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: var(--border-glow);
+    border: 2px solid var(--color-neon-green);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .demo-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-glow);
 }
 
 .demo-header {
-    padding: 16px 20px;
-    background: var(--color-bg-tertiary);
+    padding: 12px 20px;
+    background: var(--color-bg);
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 2px solid var(--color-neon-green);
 }
 
 .demo-dots {
@@ -275,87 +307,102 @@ button {
 }
 
 .dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
+    box-shadow: 0 0 5px currentColor;
 }
 
-.dot.red { background: #FF5F56; }
-.dot.yellow { background: #FFBD2E; }
-.dot.green { background: #27C93F; }
+.dot.red { background: #00ff00; color: #00ff00; }
+.dot.yellow { background: #00cc00; color: #00cc00; }
+.dot.green { background: #00ff00; color: #00ff00; }
 
 .demo-title {
-    font-size: 14px;
-    color: var(--color-text-secondary);
+    font-size: 12px;
+    color: var(--color-text);
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
 .demo-content {
-    padding: 24px;
+    padding: 20px;
 }
 
 .input-area {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .prompt-input {
     width: 100%;
-    background: var(--color-bg-tertiary);
-    border: 2px solid rgba(139, 92, 246, 0.2);
-    border-radius: 12px;
+    background: var(--color-bg);
+    border: 2px solid var(--color-neon-green);
+    border-radius: 4px;
     padding: 16px;
     color: var(--color-text);
-    font-family: inherit;
-    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
     resize: none;
     margin-bottom: 12px;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 .prompt-input:focus {
     outline: none;
-    border-color: var(--color-purple);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    border-color: var(--color-neon-bright);
+    box-shadow: var(--border-glow);
 }
 
 .prompt-input::placeholder {
-    color: var(--color-text-secondary);
+    color: var(--color-text-dim);
 }
 
 .generate-btn {
     width: 100%;
-    background: var(--gradient-primary);
-    color: white;
+    background: var(--color-bg);
+    color: var(--color-neon-green);
     padding: 14px;
-    border-radius: 12px;
+    border-radius: 4px;
+    border: 2px solid var(--color-neon-green);
     font-weight: 600;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 .generate-btn svg {
     width: 18px;
     height: 18px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.8));
 }
 
 .generate-btn:hover {
+    background: var(--color-neon-green);
+    color: var(--color-bg);
+    box-shadow: var(--shadow-glow);
     transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
 }
 
 /* Terminal Output */
 .terminal-output {
-    background: #000000;
-    border-radius: 12px;
+    background: var(--color-bg);
+    border-radius: 4px;
     padding: 20px;
     font-family: 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.6;
-    min-height: 200px;
-    max-height: 400px;
+    min-height: 300px;
+    max-height: 500px;
     overflow-y: auto;
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    border: 2px solid var(--color-neon-green);
+    box-shadow: var(--border-glow);
 }
 
 .terminal-line {
@@ -363,37 +410,42 @@ button {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 .terminal-prompt {
-    color: var(--color-green);
+    color: var(--color-neon-green);
     font-weight: 600;
 }
 
 .terminal-text {
-    color: #ffffff;
+    color: var(--color-neon-green);
 }
 
 .terminal-success {
-    color: var(--color-green);
+    color: var(--color-neon-bright);
+    text-shadow: 0 0 8px rgba(0, 255, 65, 0.8);
 }
 
 .terminal-error {
-    color: var(--color-red);
+    color: var(--color-warning);
+    text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
 }
 
 .terminal-warning {
-    color: var(--color-orange);
+    color: #ffff00;
+    text-shadow: 0 0 8px rgba(255, 255, 0, 0.8);
 }
 
 .terminal-info {
-    color: var(--color-blue);
+    color: var(--color-text-secondary);
 }
 
 .terminal-cursor {
-    color: var(--color-green);
+    color: var(--color-neon-green);
     animation: blink 1s infinite;
     margin-top: 8px;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 1);
 }
 
 @keyframes blink {
@@ -402,21 +454,21 @@ button {
 }
 
 .terminal-output::-webkit-scrollbar {
-    width: 8px;
+    width: 10px;
 }
 
 .terminal-output::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-neon-green);
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
-    background: var(--color-purple);
-    border-radius: 4px;
+    background: var(--color-neon-green);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
-    background: var(--color-pink);
+    background: var(--color-neon-bright);
 }
 
 /* Features Section */

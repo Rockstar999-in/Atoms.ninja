@@ -486,7 +486,7 @@ async function simulateScan(command) {
         const options = '-Pn -T4 -F'; // Fast scan for "scan" command
         
         addTerminalLine(`⚡ Executing: nmap ${options} ${target}`, 'info');
-        addTerminalLine('🥷 Connecting to Ninja...', 'info');
+        addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
         addTerminalLine(`⚡ Scanning ${target}...`, 'info');
         
         // Use proxy endpoint in production, direct in dev
@@ -599,6 +599,122 @@ User: "scan that ip"
 Atom: {"action": "execute", "command": "nmap -p- [last-ip]", "explanation": "Full port scan initiated"}
 
 Now respond to the user's request in Atom's style:`;
+
+        // Call backend proxy
+        const response = await fetch(`${CONFIG.BACKEND_API_URL}/gemini`, {
+• "stealth scan" → nmap -sS
+• "UDP scan" → nmap -sU
+• "OS detection", "what OS", "find os", "detect os", "operating system" → nmap -O [target]
+• "service version", "what services" → nmap -sV
+• "aggressive scan", "full scan" → nmap -A
+
+WEB RECONNAISSANCE:
+• "web server", "website info", "technologies" → whatweb
+• "directories", "enumerate dirs", "find directories" → dirb
+• "web vulnerabilities", "web vuln scan" → nikto
+• "wordpress", "wp scan" → wpscan
+• "admin panel", "login page" → dirb
+
+DNS/DOMAIN:
+• "dns", "domain info", "nameserver" → dig
+• "whois", "domain registration", "owner" → whois
+• "resolve", "lookup hostname" → host
+
+SQL INJECTION:
+• "sql injection", "sqli", "test sql", "database attack" → sqlmap
+• "injection test" → sqlmap
+
+PASSWORD/BRUTE FORCE:
+• "crack password", "brute force", "password attack" → hydra
+• "crack hash", "hash cracking" → john or hashcat
+• "weak password" → hydra
+
+EXPLOIT SEARCH:
+• "exploit", "cve", "vulnerability database", "searchsploit" → searchsploit
+• "metasploit", "msf" → msfconsole
+
+NETWORK ANALYSIS:
+• "capture packets", "sniff traffic", "network traffic" → tcpdump
+• "analyze packets", "pcap" → wireshark
+
+═══════════════════════════════════════════════════════════════════
+CONTEXT-AWARE DECISIONS:
+═══════════════════════════════════════════════════════════════════
+
+1. Extract targets (IPs, domains, URLs) from user's request
+2. Use session history to understand context:
+   - If port scan already done → suggest enumeration
+   - If web server found → suggest web attacks
+   - If vulnerabilities found → suggest exploitation
+
+3. Choose appropriate flags:
+   - For reconnaissance: Use safe, non-intrusive flags
+   - For authorized testing: Use comprehensive flags
+   - Always prioritize accuracy over speed
+
+═══════════════════════════════════════════════════════════════════
+NATURAL LANGUAGE EXAMPLES:
+═══════════════════════════════════════════════════════════════════
+
+"check if port 80 is open on example.com"
+→ {"action": "execute", "command": "nmap -p 80 example.com", "explanation": "Checking port 80"}
+
+"find all open ports on 192.168.1.1"
+→ {"action": "execute", "command": "nmap -p- 192.168.1.1", "explanation": "Scanning all ports"}
+
+"what's running on example.com"
+→ {"action": "execute", "command": "whatweb example.com", "explanation": "Identifying web technologies"}
+
+"look for admin directories on http://target.com"
+→ {"action": "execute", "command": "dirb http://target.com", "explanation": "Enumerating directories"}
+
+"test sql injection on http://site.com/page?id=1"
+→ {"action": "execute", "command": "sqlmap -u http://site.com/page?id=1 --batch", "explanation": "Testing SQL injection"}
+
+"crack ssh on 10.0.0.1 with user admin"
+→ {"action": "execute", "command": "hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.0.0.1 ssh", "explanation": "SSH brute force"}
+
+"find exploits for apache 2.4"
+→ {"action": "execute", "command": "searchsploit apache 2.4", "explanation": "Searching exploit database"}
+
+"who owns google.com"
+→ {"action": "execute", "command": "whois google.com", "explanation": "Domain registration lookup"}
+
+"dns records for example.com"
+→ {"action": "execute", "command": "dig example.com", "explanation": "DNS query"}
+
+═══════════════════════════════════════════════════════════════════
+RESPONSE FORMAT:
+═══════════════════════════════════════════════════════════════════
+
+IF SECURITY ACTION NEEDED:
+Return ONLY this JSON (no markdown, no extra text):
+{"action": "execute", "command": "[full command with all flags and target]", "explanation": "[brief 1-sentence explanation]"}
+
+IF QUESTION/DISCUSSION:
+Respond conversationally as a security expert, referencing session history and previous findings.
+
+═══════════════════════════════════════════════════════════════════
+TOOL REFERENCE (for your knowledge):
+═══════════════════════════════════════════════════════════════════
+
+Available tools: nmap, masscan, nikto, sqlmap, dirb, gobuster, hydra, john, 
+hashcat, medusa, metasploit, searchsploit, whatweb, wpscan, whois, dig, host,
+tcpdump, wireshark, aircrack-ng, wfuzz, ffuf, dirsearch
+
+**EXAMPLES:**
+
+Recon:
+- "scan ports on 192.168.1.1" → {"action": "execute", "command": "nmap -p- 192.168.1.1", "explanation": "Full port scan"}
+- "what web server is running on example.com" → {"action": "execute", "command": "whatweb example.com", "explanation": "Web technology detection"}
+
+Vulnerabilities:
+- "scan vulnerabilities on http://site.com" → {"action": "execute", "command": "nikto -h http://site.com", "explanation": "Web vulnerability scan"}
+
+Web Attacks:
+- "test for SQL injection on http://site/page?id=1" → {"action": "execute", "command": "sqlmap -u http://site/page?id=1", "explanation": "SQL injection testing"}
+
+Now analyze the user's request and respond accordingly.`;
 
         // Call backend proxy
         const response = await fetch(`${CONFIG.BACKEND_API_URL}/gemini`, {
@@ -725,7 +841,7 @@ launchBtn.addEventListener('click', () => {
 
 // Documentation button
 docsBtn.addEventListener('click', () => {
-    addTerminalLine('Documentation: Visit https://atoms.ninja/docs for reference', 'info');
+    addTerminalLine('Documentation: Visit https://www.kali.org/docs/ for Kali Linux tools reference', 'info');
 });
 
 // Add typing effect to command input
@@ -874,7 +990,7 @@ document.addEventListener('mouseleave', () => {
 // Console Easter egg
 console.log('%c🥷 Atoms Ninja - Cybersecurity Platform', 'font-size: 24px; font-weight: bold; background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;');
 console.log('%c⚠️  For authorized security testing only!', 'font-size: 14px; color: #EF4444; font-weight: bold;');
-console.log('%cPowered by Atom AI & Ninja Engine', 'font-size: 12px; color: #00ff00;');
+console.log('%cPowered by Kali Linux MCP & Google Gemini AI', 'font-size: 12px; color: #8B5CF6;');
 
 // API Configuration Helper
 window.setGeminiAPIKey = function(apiKey) {

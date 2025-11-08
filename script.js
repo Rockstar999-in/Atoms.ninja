@@ -311,6 +311,28 @@ async function executeCommand(command) {
 async function processCommand(command) {
     const cmd = command.toLowerCase().trim();
     
+    // Direct command patterns - bypass AI for obvious tool requests
+    const directPatterns = [
+        { pattern: /find\s+os\s+of\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
+        { pattern: /detect\s+os\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
+        { pattern: /scan\s+ports?\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
+        { pattern: /scan\s+(\S+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
+        { pattern: /vulnerabilities?\s+(?:on|of)\s+(http\S+)/, tool: 'nikto', flags: '-h', explanation: 'Web vulnerability scan' },
+        { pattern: /check\s+web\s+server\s+(?:on|of)\s+(\S+)/, tool: 'whatweb', flags: '', explanation: 'Web technology detection' },
+    ];
+    
+    // Check direct patterns first
+    for (const { pattern, tool, flags, explanation } of directPatterns) {
+        const match = cmd.match(pattern);
+        if (match) {
+            const target = match[1];
+            const fullCommand = flags ? `${tool} ${flags} ${target}` : `${tool} ${target}`;
+            addTerminalLine(`💡 ${explanation}`, 'info');
+            addTerminalLine(`⚡ Auto-executing: ${fullCommand}`, 'info');
+            return await executeSecurityTool(fullCommand, tool);
+        }
+    }
+    
     // List of Kali tools that should be executed directly
     const kaliTools = [
         'nmap', 'masscan', 'nikto', 'dirb', 'dirbuster', 'sqlmap', 'hydra', 

@@ -373,19 +373,14 @@ async function executeSecurityTool(command, toolName) {
         const tool = parts[0]; // First part is the tool name
         const args = parts.slice(1); // Rest are arguments
         
-        // Use proxy endpoint in production, direct in dev
-        const endpoint = CONFIG.KALI_MCP_ENDPOINT.includes('/api/kali') 
-            ? `${CONFIG.KALI_MCP_ENDPOINT}/execute`
-            : `${CONFIG.KALI_MCP_ENDPOINT}/api/execute`;
-        
         console.log('🔧 DEBUG - Tool:', tool, 'Args:', args);
-        console.log('🔧 DEBUG - Endpoint:', endpoint);
+        console.log('🔧 DEBUG - Endpoint:', CONFIG.KALI_MCP_ENDPOINT);
         
-        const response = await fetch(endpoint, {
+        const response = await fetch(`${CONFIG.KALI_MCP_ENDPOINT}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                command: tool,
+                tool: tool,
                 args: args
             })
         });
@@ -625,15 +620,18 @@ Web Attacks:
 Now analyze the user's request and respond accordingly.`;
 
         // Call backend proxy
-        const response = await fetch(`${CONFIG.BACKEND_API_URL}/api/gemini`, {
+        const response = await fetch(`${CONFIG.BACKEND_API_URL}/gemini`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                prompt: prompt,
-                temperature: 0.6,  // Reduced for more precise tool selection
-                maxTokens: 800  // Increased for complex natural language understanding
+                message: command,
+                chatHistory: chatHistory.map(h => ({
+                    role: h.user ? 'user' : 'model',
+                    content: h.user || h.ai
+                })),
+                sessionData: currentSession
             })
         });
         

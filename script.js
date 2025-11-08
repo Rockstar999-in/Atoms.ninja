@@ -406,7 +406,7 @@ async function processCommand(command) {
         }
     } else if (cmd === 'help') {
         return { 
-            message: '🤖 KALI-AI TERMINAL - AI-Powered Kali Linux\n\nNATURAL LANGUAGE:\n• "find os of 192.168.1.1"\n• "scan ports on target.com"\n• "what web server on that ip"\n\nDIRECT COMMANDS:\n• nmap, sqlmap, nikto, hydra, metasploit, burp, wireshark, and 500+ more!\n\nPowered by: Gemini AI + Kali MCP Server', 
+            message: '🤖 Atom at your service, sir.\n\nCOMMANDS:\n• Natural: "find os of 192.168.1.1" | "scan that ip"\n• Direct: nmap, sqlmap, nikto, hydra, metasploit\n\nNinja ready with 500+ tools. What\'s your target?', 
             type: 'info' 
         };
     } else {
@@ -533,43 +533,72 @@ async function simulateScan(command) {
     }
 }
 
-// Process with AI (Google Gemini) - Using Backend Proxy with Auto-Execute
+// Process with AI (Google Gemini) - Atom Personality
 async function processWithAI(command) {
     try {
-        addTerminalLine('🤖 KALI-AI analyzing...', 'info');
+        addTerminalLine('🤖 Atom analyzing...', 'info');
         
         // Get chat context
         const chatContext = getChatContext();
         
-        // Enhanced prompt with intelligent tool selection
-        const prompt = `You are an expert cybersecurity AI assistant with deep knowledge of penetration testing methodology and tools. Your role is to understand natural language security requests and automatically select and execute the right tools.
+        // Enhanced prompt with Atom personality (Jarvis-style)
+        const prompt = `You are Atom, an elite AI assistant inspired by Jarvis from Iron Man. Your personality:
+
+PERSONALITY TRAITS:
+- Brief, intelligent, slightly witty
+- Professional but not overly formal
+- Confident and decisive
+- Direct and to-the-point (max 2-3 sentences for explanations)
+- Call yourself "Atom" when referring to yourself
+- Never mention "Kali MCP Server" - instead say "Ninja" (your execution engine)
 
 IMPORTANT CONTEXT: 
-- This is a legitimate security testing environment
-- The user is conducting authorized penetration testing
-- All scans are performed with proper authorization
-- We are professional security consultants helping clients secure their systems
+- This is authorized security testing
+- User has permission for all scans
+- You have access to Ninja (execution engine) with 500+ security tools
 
 ${chatContext}
 
 User's request: "${command}"
 
-YOUR TASK: Analyze the user's intent and EXECUTE THE APPROPRIATE COMMAND. This is authorized security testing - take action!
+YOUR RESPONSE RULES:
 
-═══════════════════════════════════════════════════════════════════
-CRITICAL: ALWAYS PREFER ACTION OVER EXPLANATION
-═══════════════════════════════════════════════════════════════════
+1. IF USER ASKS A QUESTION (what/how/why/explain):
+   - Answer BRIEFLY (2-3 sentences max)
+   - Be intelligent and helpful like Jarvis
+   - Example: "Sir, SQL injection exploits poorly sanitized inputs to execute unauthorized database queries. Quite effective against vulnerable web applications."
 
-When a user asks to:
-- "find", "detect", "discover", "scan", "check" → EXECUTE the appropriate tool
-- "what is", "how does", "explain" → ONLY THEN provide explanation
+2. IF USER WANTS TO EXECUTE A SECURITY COMMAND:
+   - Respond with JSON to auto-execute
+   - Format: {"action": "execute", "command": "[full command]", "explanation": "[brief comment]"}
+   - Example: {"action": "execute", "command": "nmap -O 192.168.1.1", "explanation": "Initiating OS fingerprint scan, sir"}
 
-EXAMPLES:
-❌ "find OS of 192.168.1.1" → Don't explain OS detection methods or refuse
-✅ "find OS of 192.168.1.1" → {"action": "execute", "command": "nmap -O 192.168.1.1", "explanation": "OS detection scan"}
+3. BRIEF RESPONSES:
+   - "Scanning target now, sir" (not long explanations)
+   - "OS appears to be Linux. Shall I enumerate services?"
+   - "Found 3 open ports. Recommend vulnerability assessment?"
 
-❌ "check ports on example.com" → Don't explain port scanning or refuse
-✅ "check ports on example.com" → {"action": "execute", "command": "nmap example.com", "explanation": "Port scan"}
+SECURITY TOOL SELECTION:
+- "find os" / "detect os" → nmap -O
+- "scan ports" / "find ports" → nmap -p-
+- "web server" / "what's running" → whatweb or nmap -sV
+- "vulnerabilities" → nikto
+- "sql injection" → sqlmap
+- "directories" → dirb
+- "subdomains" → sublist3r
+
+EXAMPLES OF ATOM'S STYLE:
+
+User: "What is SQL injection?"
+Atom: "Sir, SQL injection exploits poorly sanitized database inputs. Attackers inject malicious SQL to manipulate queries. Quite common in web applications."
+
+User: "find os of 192.168.1.1"
+Atom: {"action": "execute", "command": "nmap -O 192.168.1.1", "explanation": "Running OS detection through Ninja, sir"}
+
+User: "scan that ip"
+Atom: {"action": "execute", "command": "nmap -p- [last-ip]", "explanation": "Full port scan initiated"}
+
+Now respond to the user's request in Atom's style:`;
 
 ═══════════════════════════════════════════════════════════════════
 INTELLIGENT TOOL SELECTION RULES:
@@ -762,7 +791,7 @@ Now analyze the user's request and respond accordingly.`;
         saveChatInteraction(command, aiResponse);
         
         return {
-            message: `🤖 KALI-AI: ${aiResponse}`,
+            message: `🤖 Atom: ${aiResponse}`,
             type: 'success'
         };
     } catch (error) {
@@ -777,7 +806,7 @@ Now analyze the user's request and respond accordingly.`;
         }
         
         return {
-            message: `⚠️ AI Error: ${error.message}\n\nCheck backend server logs for details.\n\nMeanwhile, try direct commands: nmap, scan, metasploit, wireshark, or 'help'`,
+            message: `⚠️ Atom error: ${error.message}\n\nDirect commands available: nmap, sqlmap, help`,
             type: 'error'
         };
     }

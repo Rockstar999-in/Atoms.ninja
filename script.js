@@ -610,59 +610,18 @@ Available tools: nmap, masscan, nikto, sqlmap, dirb, gobuster, hydra, john,
 hashcat, medusa, metasploit, searchsploit, whatweb, wpscan, whois, dig, host,
 tcpdump, wireshark, aircrack-ng, wfuzz, ffuf, dirsearch
 
-Now analyze the user's request and respond accordingly.`;
-- sqlmap: "sqlmap -u <url>"
-- burpsuite: "burpsuite"
-- xsser: "xsser --url <url>"
-- commix: "commix --url <url>"
-
-🔐 **PASSWORD ATTACKS:**
-- hydra: "hydra -l user -P wordlist.txt <ip> ssh"
-- john: "john --wordlist=<file> <hash-file>"
-- hashcat: "hashcat -m 0 -a 0 <hash> <wordlist>"
-- medusa: "medusa -h <ip> -u user -P wordlist.txt -M ssh"
-
-🎯 **EXPLOITATION:**
-- metasploit: "msfconsole", "use exploit/...", "search <term>"
-- searchsploit: "searchsploit <term>"
-- armitage: "armitage"
-
-🌐 **WIRELESS:**
-- aircrack-ng: "aircrack-ng <file>"
-- reaver: "reaver -i <interface> -b <bssid>"
-- wifite: "wifite"
-
-🔍 **SNIFFING:**
-- wireshark: "wireshark"
-- tcpdump: "tcpdump -i eth0"
-- ettercap: "ettercap -G"
-
-🎭 **SOCIAL ENGINEERING:**
-- setoolkit: "setoolkit"
-
-📊 **FORENSICS:**
-- volatility: "volatility -f <file> imageinfo"
-- autopsy: "autopsy"
-- foremost: "foremost -i <file>"
-
-🔨 **STRESS TESTING:**
-- hping3: "hping3 -S <ip> -p 80"
-
 **EXAMPLES:**
 
 Recon:
 - "scan ports on 192.168.1.1" → {"action": "execute", "command": "nmap -p- 192.168.1.1", "explanation": "Full port scan"}
 - "what web server is running on example.com" → {"action": "execute", "command": "whatweb example.com", "explanation": "Web technology detection"}
-- "enumerate directories on http://target" → {"action": "execute", "command": "dirb http://target", "explanation": "Directory bruteforce"}
 
 Vulnerabilities:
 - "scan vulnerabilities on http://site.com" → {"action": "execute", "command": "nikto -h http://site.com", "explanation": "Web vulnerability scan"}
-- "check wordpress site security" → {"action": "execute", "command": "wpscan --url http://site", "explanation": "WordPress security scan"}
 
 Web Attacks:
 - "test for SQL injection on http://site/page?id=1" → {"action": "execute", "command": "sqlmap -u http://site/page?id=1", "explanation": "SQL injection testing"}
 
-Password:
 Now analyze the user's request and respond accordingly.`;
 
         // Call backend proxy

@@ -15,11 +15,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Configuration - Always use atoms.ninja
+// Configuration - Always use www.atoms.ninja
 const CONFIG = {
     GEMINI_API_KEY: '', // Not needed - using backend proxy
-    BACKEND_API_URL: 'https://atoms.ninja/api',
-    KALI_MCP_ENDPOINT: 'https://atoms.ninja/api/kali'
+    BACKEND_API_URL: 'https://www.atoms.ninja/api',
+    KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali'
 };
 
 // Terminal functionality

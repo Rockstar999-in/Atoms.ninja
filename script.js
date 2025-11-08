@@ -315,17 +315,32 @@ async function processCommand(command) {
     const directPatterns = [
         { pattern: /find\s+os\s+of\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
         { pattern: /detect\s+os\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '-O', explanation: 'OS detection scan' },
+        { pattern: /find\s+(?:all\s+)?open\s+ports?\s+(?:on|of)\s+(?:the\s+same\s+ip|(\S+))/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan (all 65535 ports)', extractTarget: true },
+        { pattern: /scan\s+(?:all\s+)?ports?\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '-p-', explanation: 'Full port scan' },
         { pattern: /scan\s+ports?\s+(?:on|of)\s+(\S+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
-        { pattern: /scan\s+(\S+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
+        { pattern: /scan\s+(\d+\.\d+\.\d+\.\d+|[\w\-\.]+)/, tool: 'nmap', flags: '', explanation: 'Port scan' },
         { pattern: /vulnerabilities?\s+(?:on|of)\s+(http\S+)/, tool: 'nikto', flags: '-h', explanation: 'Web vulnerability scan' },
         { pattern: /check\s+web\s+server\s+(?:on|of)\s+(\S+)/, tool: 'whatweb', flags: '', explanation: 'Web technology detection' },
+        { pattern: /enumerate\s+directories?\s+(?:on|of)\s+(http\S+)/, tool: 'dirb', flags: '', explanation: 'Directory enumeration' },
+        { pattern: /find\s+subdomains?\s+(?:of|for)\s+(\S+)/, tool: 'sublist3r', flags: '-d', explanation: 'Subdomain enumeration' },
     ];
     
     // Check direct patterns first
-    for (const { pattern, tool, flags, explanation } of directPatterns) {
+    for (const { pattern, tool, flags, explanation, extractTarget } of directPatterns) {
         const match = cmd.match(pattern);
         if (match) {
-            const target = match[1];
+            let target = match[1];
+            
+            // Special case: "same ip" - extract from session history
+            if (extractTarget && (!target || target === 'undefined')) {
+                // Try to get the last target from session
+                if (currentSession.targets.size > 0) {
+                    target = Array.from(currentSession.targets)[currentSession.targets.size - 1];
+                } else {
+                    return { message: '⚠️ No previous target found. Please specify an IP address or domain.', type: 'warning' };
+                }
+            }
+            
             const fullCommand = flags ? `${tool} ${flags} ${target}` : `${tool} ${target}`;
             addTerminalLine(`💡 ${explanation}`, 'info');
             addTerminalLine(`⚡ Auto-executing: ${fullCommand}`, 'info');

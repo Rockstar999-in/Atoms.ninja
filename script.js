@@ -22,6 +22,109 @@ const CONFIG = {
     KALI_MCP_ENDPOINT: 'https://www.atoms.ninja/api/kali'
 };
 
+// Enhanced Session Manager with persistence
+class SessionManager {
+    constructor() {
+        this.sessions = this.loadSessions();
+        this.currentSession = this.loadCurrentSession();
+    }
+    
+    loadSessions() {
+        try {
+            const saved = localStorage.getItem('atom_sessions');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    
+    saveSessions() {
+        localStorage.setItem('atom_sessions', JSON.stringify(this.sessions));
+    }
+    
+    loadCurrentSession() {
+        try {
+            const saved = localStorage.getItem('atom_current_session');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        
+        const newSession = {
+            id: Date.now(),
+            name: `Session ${new Date().toLocaleString()}`,
+            created: new Date().toISOString(),
+            targets: [],
+            scans: [],
+            vulnerabilities: [],
+            riskScore: 0
+        };
+        this.saveCurrentSession(newSession);
+        return newSession;
+    }
+    
+    saveCurrentSession(session = this.currentSession) {
+        localStorage.setItem('atom_current_session', JSON.stringify(session));
+    }
+    
+    addScan(command, output, vulnerabilities = []) {
+        this.currentSession.scans.push({
+            timestamp: new Date().toISOString(),
+            command,
+            output,
+            vulnerabilities
+        });
+        
+        if (vulnerabilities.length > 0) {
+            this.currentSession.vulnerabilities.push(...vulnerabilities);
+            this.updateRiskScore();
+        }
+        
+        this.saveCurrentSession();
+    }
+    
+    addTarget(target) {
+        if (!this.currentSession.targets.includes(target)) {
+            this.currentSession.targets.push(target);
+            this.saveCurrentSession();
+        }
+    }
+    
+    updateRiskScore() {
+        let score = 0;
+        for (const vuln of this.currentSession.vulnerabilities) {
+            if (vuln.severity === 'CRITICAL') score += 10;
+            else if (vuln.severity === 'HIGH') score += 7;
+            else if (vuln.severity === 'MEDIUM') score += 4;
+            else if (vuln.severity === 'LOW') score += 2;
+        }
+        this.currentSession.riskScore = Math.min(100, score);
+    }
+    
+    exportReport() {
+        const report = {
+            session: this.currentSession,
+            exported: new Date().toISOString(),
+            summary: {
+                totalScans: this.currentSession.scans.length,
+                totalTargets: this.currentSession.targets.length,
+                totalVulnerabilities: this.currentSession.vulnerabilities.length,
+                riskScore: this.currentSession.riskScore,
+                criticalVulns: this.currentSession.vulnerabilities.filter(v => v.severity === 'CRITICAL').length
+            }
+        };
+        
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `atom-report-${Date.now()}.json`;
+        a.click();
+        
+        addTerminalLine(`📄 Report exported: ${a.download}`, 'success');
+    }
+}
+
+const atomSession = new SessionManager();
+
 // Terminal functionality
 const commandInput = document.getElementById('commandInput');
 const executeBtn = document.getElementById('executeBtn');
@@ -465,16 +568,28 @@ async function executeSecurityTool(command, toolName) {
         const data = await response.json();
         console.log('🔧 DEBUG - Response data:', data);
         
+        const scanOutput = data.result || data.stdout || '';
+        
+        // Store scan in session
+        atomSession.addScan(command, scanOutput);
+        
+        // Auto-analyze for CVEs if it's a scan
+        if (toolName === 'nmap' && scanOutput.length > 200) {
+            setTimeout(() => analyzeCVEs(scanOutput, command), 1000);
+        }
+        
         if (data.stderr && data.stderr.trim()) {
             return { 
-                message: `⚠️ ${toolName} warning:\n${data.stderr}\n\n${data.result || data.stdout || ''}`, 
-                type: 'warning' 
+                message: `⚠️ ${toolName} warning:\n${data.stderr}\n\n${scanOutput}`, 
+                type: 'warning',
+                scanOutput 
             };
         }
         
         return {
-            message: `✅ ${toolName} complete:\n\n${data.result || data.stdout || 'Command executed successfully'}`,
-            type: 'success'
+            message: `✅ ${toolName} complete:\n\n${scanOutput}`,
+            type: 'success',
+            scanOutput
         };
     } catch (error) {
         console.error('🔧 DEBUG - Full error:', error);
@@ -1249,3 +1364,119 @@ document.querySelectorAll('.quick-commands code').forEach(codeEl => {
 
 // End of DOMContentLoaded
 });
+
+// CVE Analysis and Visualization
+async function analyzeCVEs(scanOutput, originalCommand) {
+    try {
+        addTerminalLine('🔍 Analyzing for known vulnerabilities...', 'info');
+        
+        const response = await fetch(`${CONFIG.BACKEND_API_URL}/cve-lookup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scanOutput })
+        });
+        
+        if (!response.ok) throw new Error('CVE lookup failed');
+        
+        const data = await response.json();
+        
+        if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+            // Add vulnerabilities to session
+            atomSession.currentSession.vulnerabilities.push(...data.vulnerabilities);
+            atomSession.saveCurrentSession();
+            
+            // Display formatted results
+            addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
+            addTerminalLine('🎯 VULNERABILITY ANALYSIS', 'success');
+            addTerminalLine(`${'═'.repeat(60)}`, 'info');
+            
+            addTerminalLine(`\n${data.summary}`, 'warning');
+            
+            addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+            addTerminalLine('📋 DETECTED SOFTWARE:', 'info');
+            for (const sw of data.detectedSoftware) {
+                addTerminalLine(`  • ${sw.software} ${sw.version}`, 'info');
+            }
+            
+            addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+            addTerminalLine('🔴 VULNERABILITIES FOUND:', 'error');
+            for (const vuln of data.vulnerabilities.slice(0, 5)) {
+                const severity = vuln.severity === 'CRITICAL' ? '🔴' : vuln.severity === 'HIGH' ? '🟠' : '🟡';
+                addTerminalLine(`\n  ${severity} ${vuln.cve} [${vuln.severity}]`, 'error');
+                addTerminalLine(`     ${vuln.description}`, 'info');
+                if (vuln.exploitable) {
+                    addTerminalLine(`     ⚡ EXPLOIT AVAILABLE`, 'warning');
+                }
+            }
+            
+            if (data.vulnerabilities.length > 5) {
+                addTerminalLine(`\n  ... and ${data.vulnerabilities.length - 5} more vulnerabilities`, 'info');
+            }
+            
+            addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
+            
+            // Suggest attack chains
+            setTimeout(() => suggestAttackChain(scanOutput, data.vulnerabilities), 1500);
+        } else {
+            addTerminalLine('✅ No known critical vulnerabilities detected.', 'success');
+        }
+    } catch (error) {
+        console.error('CVE analysis error:', error);
+    }
+}
+
+// Smart Attack Chain Suggestions
+async function suggestAttackChain(scanOutput, vulnerabilities) {
+    try {
+        addTerminalLine('🎯 Generating attack chain suggestions...', 'info');
+        
+        const target = extractTarget(scanOutput);
+        
+        const response = await fetch(`${CONFIG.BACKEND_API_URL}/attack-chain`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ scanOutput, vulnerabilities, target })
+        });
+        
+        if (!response.ok) throw new Error('Attack chain generation failed');
+        
+        const data = await response.json();
+        
+        if (data.chains && data.chains.length > 0) {
+            addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
+            addTerminalLine('⚔️  SUGGESTED ATTACK CHAINS', 'success');
+            addTerminalLine(`${'═'.repeat(60)}`, 'info');
+            
+            for (const chain of data.chains) {
+                addTerminalLine(`\n📌 ${chain.target}:`, 'warning');
+                for (const step of chain.steps.slice(0, 3)) {
+                    const risk = step.risk === 'CRITICAL' ? '🔴' : step.risk === 'HIGH' ? '🟠' : '🟡';
+                    addTerminalLine(`\n  ${risk} Step ${step.step}: ${step.action}`, 'info');
+                    addTerminalLine(`     $ ${step.command}`, 'success');
+                }
+            }
+            
+            if (data.aiSuggestions) {
+                addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+                addTerminalLine('🤖 AI ANALYSIS:', 'info');
+                addTerminalLine(data.aiSuggestions, 'info');
+            }
+            
+            addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
+            addTerminalLine('💡 Type any command above to execute it, Chief.', 'success');
+        }
+    } catch (error) {
+        console.error('Attack chain error:', error);
+    }
+}
+
+function extractTarget(scanOutput) {
+    const ipMatch = scanOutput.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+    const domainMatch = scanOutput.match(/([a-z0-9-]+\.)+[a-z]{2,}/i);
+    return ipMatch ? ipMatch[0] : (domainMatch ? domainMatch[0] : 'TARGET');
+}
+
+// Export report command
+window.exportReport = function() {
+    atomSession.exportReport();
+};

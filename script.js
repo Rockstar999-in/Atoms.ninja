@@ -573,13 +573,13 @@ async function processWithAI(command) {
         
         const data = await response.json();
         
-        // Handle the new API response format
-        if (!data.reply) {
+        // Handle the OpenAI API response format
+        const aiResponse = (data.response || data.reply || '').trim();
+        
+        if (!aiResponse) {
             console.error('Unexpected API response:', data);
             throw new Error('Invalid response format from AI');
         }
-        
-        const aiResponse = data.reply.trim();
         
         // Check if AI wants to execute a command (JSON response)
         if (aiResponse.startsWith('{') && aiResponse.includes('"action"')) {

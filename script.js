@@ -460,11 +460,6 @@ function removeProgressIndicator() {
         indicator.remove();
     }
 }
-        .replace(/(Mission|Target|Protocol|Status|Executing|Deploying)/gi, '<strong style="color: #00d4ff;">$1</strong>')
-        .replace(/(CRITICAL|URGENT|ALERT|THREAT|VULNERABILITY)/gi, '<strong style="color: #ff0055;">$1</strong>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-}
-
 
 // Simulate command execution - make globally accessible
 window.executeCommand = async function executeCommand(command) {

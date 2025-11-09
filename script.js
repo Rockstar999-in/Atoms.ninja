@@ -910,7 +910,28 @@ async function handleAIResponse(command, data) {
                     let nextExplanation = '';
                     const target = extractTarget(currentCommand);
                     
-                    if (hostDown || noHostsUp) {
+                    // OSINT progression chain
+                    if (command.toLowerCase().includes('osint')) {
+                        if (currentCommand.includes('whois')) {
+                            nextCommand = `dig ${target} ANY`;
+                            nextExplanation = 'Phase 2: DNS record enumeration';
+                        } else if (currentCommand.includes('dig')) {
+                            nextCommand = `nslookup ${target}`;
+                            nextExplanation = 'Phase 3: DNS lookup verification';
+                        } else if (currentCommand.includes('nslookup')) {
+                            nextCommand = `whatweb http://${target}`;
+                            nextExplanation = 'Phase 4: Web technology fingerprinting';
+                        } else if (currentCommand.includes('whatweb')) {
+                            nextCommand = `curl -sI http://${target}`;
+                            nextExplanation = 'Phase 5: HTTP header analysis';
+                        } else if (currentCommand.includes('curl')) {
+                            nextCommand = `nmap -Pn -sV ${target}`;
+                            nextExplanation = 'Phase 6: Port scan & service detection';
+                        } else {
+                            nextCommand = `whois ${target}`;
+                            nextExplanation = 'Phase 1: WHOIS lookup';
+                        }
+                    } else if (hostDown || noHostsUp) {
                         // Host blocking pings - add -Pn
                         if (!currentCommand.includes('-Pn')) {
                             nextCommand = currentCommand.replace('nmap', 'nmap -Pn');
@@ -953,7 +974,7 @@ async function handleAIResponse(command, data) {
                     } else {
                         // Ask AI for intelligent next step
                         addTerminalLine(`💭 Consulting AI for next strategy...`, 'info');
-                        const aiPrompt = `Original goal: "${command}"\nAttempt ${attempts} used: ${currentCommand}\nResult summary: ${lastOutput.substring(0, 300)}\n\nSuggest a DIFFERENT tool or method to achieve the goal. Available tools: nmap, nikto, whatweb, sqlmap, dnsenum, dirb, curl, dig. Return JSON: {"action":"execute","command":"[full command]","explanation":"[why this approach]"}`;
+                        const aiPrompt = `Original goal: "${command}"\nAttempt ${attempts} used: ${currentCommand}\nResult summary: ${lastOutput.substring(0, 300)}\n\nSuggest a DIFFERENT tool or method to achieve the goal. Available tools: nmap, nikto, whatweb, sqlmap, whois, dig, nslookup, curl, dirb. DO NOT USE: theharvester, dnsenum. Return JSON: {"action":"execute","command":"[full command]","explanation":"[why this approach]"}`;
                         
                         try {
                             const aiResponse = await fetch(CONFIG.AI_ENDPOINT, {

@@ -81,18 +81,26 @@ PARSING EXAMPLES (study these carefully):
 - "find vulnerabilities on example.com" → {"action":"execute","command":"nikto -h http://example.com","explanation":"Web vulnerability scan"}
 - "vulnerability scan 121.200.51.102" → {"action":"execute","command":"nikto -h 121.200.51.102","explanation":"Comprehensive vulnerability scan"}
 - "whatweb site.com" → {"action":"execute","command":"whatweb site.com","explanation":"Web technology fingerprinting"}
-- "osint 121.200.51.102" → {"action":"execute","command":"whois 121.200.51.102","explanation":"WHOIS lookup for IP information"}
-- "osint example.com" → {"action":"execute","command":"dig example.com ANY","explanation":"DNS enumeration"}
+- "osint 121.200.51.102" → {"action":"execute","command":"whois 121.200.51.102","explanation":"Phase 1: WHOIS lookup"}
+- "osint example.com" → {"action":"execute","command":"whois example.com","explanation":"Phase 1: WHOIS lookup"}
 - "any other methods?" → Continue with different approach based on context
 
-AVAILABLE OSINT TOOLS (in order of preference):
-1. whois <target> - IP/domain ownership info
-2. dig <domain> ANY - DNS records
-3. nslookup <domain> - DNS lookup
-4. host <domain> - Quick DNS lookup
-5. curl -I <url> - HTTP headers
+OSINT MULTI-PHASE STRATEGY:
+When user requests "osint <target>", execute multiple tools in sequence via iteration:
+Phase 1: whois <target> - Ownership & registration info
+Phase 2: dig <target> ANY - DNS records (A, MX, TXT, NS)
+Phase 3: nslookup <target> - Additional DNS verification
+Phase 4: nmap -Pn --script=whois-* <target> - Enhanced WHOIS via nmap
+Phase 5: whatweb http://<target> - Web technology stack
+Phase 6: curl -sI http://<target> - HTTP headers & server info
+Phase 7: nmap -Pn -sV <target> - Port scan & service detection
 
-DO NOT USE: theharvester, dnsenum (blocked on MCP server)
+The iteration system will automatically run through these phases. Start with Phase 1, subsequent attempts will escalate through phases 2-7.
+
+AVAILABLE TOOLS (verified working):
+- whois, dig, nslookup, host, curl, nmap, whatweb, nikto, sqlmap, dirb
+
+DO NOT USE: theharvester, dnsenum, sublist3r (blocked/unavailable on MCP server)
 
 NEVER do this:
 ❌ "command": "nmap on" (missing target!)

@@ -117,6 +117,16 @@ GENIUS EXAMPLES:
 - "find entry point on example.com" → Recon → vuln → exploit chain
 - "exploit 192.168.1.1" → Analyze previous scans, suggest attacks
 - "stealthy scan target.com" → Evasion-enabled scanning
+- "bypass waf on target.com" → Apply WAF evasion techniques
+- "find origin ip for target.com" → Discover real server behind CDN
+
+WAF BYPASS COMMANDS:
+When user says "bypass waf", "bypass cloudflare", "evade waf", "find origin ip":
+[
+  {"action":"execute","command":"dig target.com ANY","explanation":"DNS enumeration for origin discovery"},
+  {"action":"execute","command":"nmap -sV --script=http-headers target.com","explanation":"Header analysis for protection identification"},
+  {"action":"execute","command":"curl -H 'X-Originating-IP: 127.0.0.1' http://target.com","explanation":"Header spoofing test"}
+]
 
 MILITARY RESPONSES:
 - "status?" → "All systems green, Chief. Ready to engage."

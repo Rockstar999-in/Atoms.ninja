@@ -17,25 +17,24 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { tool, args = [] } = req.body;
+        const { tool, args = [], command } = req.body;
+        const cmd = command || tool; // Support both formats
         
-        if (!tool) {
-            return res.status(400).json({ error: 'Tool name is required' });
+        if (!cmd) {
+            return res.status(400).json({ error: 'Tool/command name is required' });
         }
 
-        console.log(`🔧 Proxying to Kali MCP: ${tool} with args:`, args);
-        
-        // Extract target from args (usually the last argument for most tools)
-        const target = args.length > 0 ? args[args.length - 1] : null;
+        console.log(`🔧 Proxying to Kali MCP: ${cmd} with args:`, args);
         
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 120000);
+        const timeout = setTimeout(() => controller.abort(), 240000); // 4 min timeout
         
-        const kaliResponse = await fetch(`${KALI_MCP_ENDPOINT}/api/tools/${tool}`, {
+        // Use the /api/execute endpoint with command + args format
+        const kaliResponse = await fetch(`${KALI_MCP_ENDPOINT}/api/execute`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                target: target,
+                command: cmd,
                 args: args 
             }),
             signal: controller.signal
@@ -54,7 +53,7 @@ module.exports = async (req, res) => {
     } catch (error) {
         console.error('Kali MCP Proxy Error:', error);
         if (error.name === 'AbortError') {
-            return res.status(504).json({ error: 'Request timeout' });
+            return res.status(504).json({ error: 'Request timeout - tool execution took too long' });
         }
         res.status(500).json({ error: error.message });
     }

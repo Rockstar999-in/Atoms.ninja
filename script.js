@@ -128,14 +128,14 @@ class SessionManager {
 
 const atomSession = new SessionManager();
 
-// Terminal functionality
-const commandInput = document.getElementById('commandInput');
-const executeBtn = document.getElementById('executeBtn');
-const terminalOutput = document.getElementById('terminalOutput');
-const launchBtn = document.getElementById('launchBtn');
-const docsBtn = document.getElementById('docsBtn');
+// Terminal functionality - initialized after DOM loads
+let commandInput;
+let executeBtn;
+let terminalOutput;
+let launchBtn;
+let docsBtn;
 
-let isExecuting = false;
+window.window.isExecuting = false;
 let commandHistory = [];
 let historyIndex = -1;
 
@@ -353,7 +353,14 @@ function addTerminalLine(text, type = 'text') {
     
     const prompt = document.createElement('span');
     prompt.className = 'terminal-prompt';
-    prompt.textContent = 'atom@ninja:~#';
+    
+    // Military-style prompts
+    if (type === 'mission' || text.includes('Chief') || text.includes('Sir')) {
+        prompt.textContent = '[ATOM]';
+        prompt.style.color = '#00ff00';
+    } else {
+        prompt.textContent = 'atom@ninja:~#';
+    }
     
     const textSpan = document.createElement('span');
     textSpan.className = `terminal-${type}`;
@@ -363,13 +370,14 @@ function addTerminalLine(text, type = 'text') {
         const lines = text.split('\n');
         lines.forEach((line, idx) => {
             const lineSpan = document.createElement('div');
-            lineSpan.textContent = line;
+            lineSpan.innerHTML = formatMilitaryText(line);
             lineSpan.style.whiteSpace = 'pre-wrap';
             lineSpan.style.wordBreak = 'break-word';
             textSpan.appendChild(lineSpan);
         });
     } else {
-        textSpan.textContent = text;
+        // Format military-style text
+        textSpan.innerHTML = formatMilitaryText(text);
     }
     textSpan.style.whiteSpace = 'pre-wrap';
     textSpan.style.wordBreak = 'break-word';
@@ -393,11 +401,24 @@ function addTerminalLine(text, type = 'text') {
     terminalOutput.scrollTop = terminalOutput.scrollHeight;
 }
 
-// Simulate command execution
-async function executeCommand(command) {
-    if (isExecuting || !command.trim()) return;
+// Format military-style text with emphasis
+function formatMilitaryText(text) {
+    // Convert text to string if it isn't already
+    const str = String(text);
     
-    isExecuting = true;
+    return str
+        .replace(/(Chief|Sir|Roger|Affirmative|Copy|Target acquired)/gi, '<strong style="color: #00ff00;">$1</strong>')
+        .replace(/(Mission|Target|Protocol|Status|Executing|Deploying)/gi, '<strong style="color: #00d4ff;">$1</strong>')
+        .replace(/(CRITICAL|URGENT|ALERT|THREAT|VULNERABILITY)/gi, '<strong style="color: #ff0055;">$1</strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+}
+
+
+// Simulate command execution - make globally accessible
+window.executeCommand = async function executeCommand(command) {
+    if (window.isExecuting || !command.trim()) return;
+    
+    window.isExecuting = true;
     executeBtn.textContent = 'Executing...';
     executeBtn.style.opacity = '0.7';
     
@@ -418,7 +439,7 @@ async function executeCommand(command) {
     // Clear input
     commandInput.value = '';
     
-    isExecuting = false;
+    window.isExecuting = false;
     executeBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
@@ -749,6 +770,7 @@ async function processWithAI(command) {
 
 // Handle AI response (extracted for reuse)
 async function handleAIResponse(command, data) {
+    try {
         // If backend provided a parsed autoExecute command, run it immediately
         if (data.autoExecute && data.autoExecute.action === 'execute' && data.autoExecute.command) {
             const a = data.autoExecute;
@@ -1000,18 +1022,21 @@ function setupExecuteHandlers() {
     console.log('✅ Execute handlers initialized successfully');
 }
 
-// Call setup when DOM is ready - only once
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupExecuteHandlers);
-} else {
-    setupExecuteHandlers();
-}
+// Initialize DOM elements
+commandInput = document.getElementById('commandInput');
+executeBtn = document.getElementById('executeBtn');
+terminalOutput = document.getElementById('terminalOutput');
+launchBtn = document.getElementById('launchBtn');
+docsBtn = document.getElementById('docsBtn');
 
 // Launch console button
 launchBtn.addEventListener('click', () => {
-    document.getElementById('commandInput').focus();
+    commandInput.focus();
     document.querySelector('.demo-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
+
+// Setup execute handlers inside DOMContentLoaded
+setupExecuteHandlers();
 
 // Documentation button
 docsBtn.addEventListener('click', () => {
@@ -1566,3 +1591,46 @@ function extractTarget(scanOutput) {
 window.exportReport = function() {
     atomSession.exportReport();
 };
+
+// FINAL FIX - Ensure handlers work after everything loads
+window.addEventListener('load', function() {
+    console.log('�� Window loaded - final handler setup');
+    const btn = document.getElementById('executeBtn');
+    const input = document.getElementById('commandInput');
+    
+    if (btn && input) {
+        console.log('✓ Found button and input');
+        
+        // Remove all existing listeners by cloning
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        // Fresh click listener
+        newBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            const cmd = input.value.trim();
+            console.log('🖱️ Button clicked:', cmd);
+            if (cmd && !isExecuting) {
+                setTimeout(() => window.executeCommand(cmd), 0);
+            }
+        });
+        
+        // Fresh keydown listener
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.stopPropagation();
+                e.preventDefault();
+                const cmd = input.value.trim();
+                console.log('⏎ Enter pressed:', cmd);
+                if (cmd && !isExecuting) {
+                    setTimeout(() => window.executeCommand(cmd), 0);
+                }
+            }
+        });
+        
+        console.log('✅ FINAL HANDLERS ATTACHED');
+    } else {
+        console.error('❌ Elements not found');
+    }
+});

@@ -86,6 +86,17 @@ COMMAND EXECUTION FORMAT:
   "intelligence": "<what_this_reveals>"
 }
 
+MULTI-COMMAND ATTACK CHAINS:
+For complex operations like "find entry point", "pwn", or "deep dive", return multiple commands:
+[
+  {"action":"execute","command":"whois target.com","explanation":"Phase 1: WHOIS lookup","intelligence":"Reveals ownership and hosting"},
+  {"action":"execute","command":"dig target.com ANY","explanation":"Phase 2: DNS enumeration","intelligence":"Discovers subdomains and mail servers"},
+  {"action":"execute","command":"nmap -sV target.com","explanation":"Phase 3: Port scanning","intelligence":"Identifies open services"},
+  {"action":"execute","command":"whatweb target.com","explanation":"Phase 4: Technology fingerprint","intelligence":"Reveals web stack for exploit selection"}
+]
+
+IMPORTANT: When user says "find entry point", "pwn", "exploit", or "deep dive", ALWAYS return multiple commands as an array to orchestrate the full attack chain.
+
 GENIUS EXAMPLES:
 - "pwn 121.200.51.102" → Start full autonomous attack chain from recon to exploitation
 - "find entry point on example.com" → Intelligent recon + vuln discovery + exploit suggestion

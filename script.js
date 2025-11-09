@@ -135,7 +135,8 @@ let terminalOutput;
 let launchBtn;
 let docsBtn;
 
-window.window.isExecuting = false;
+// Initialize execution state
+window.isExecuting = false;
 let commandHistory = [];
 let historyIndex = -1;
 
@@ -347,7 +348,7 @@ INSTRUCTIONS:
 }
 
 // Add terminal line
-function if(typeof addTerminalLine==="function")addTerminalLine(text, type = 'text') {
+function addTerminalLine(text, type = 'text') {
     const line = document.createElement('div');
     line.className = 'terminal-line';
     

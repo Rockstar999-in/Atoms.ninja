@@ -122,7 +122,7 @@ class SessionManager {
         a.download = `atom-report-${Date.now()}.json`;
         a.click();
         
-        addTerminalLine(`📄 Report exported: ${a.download}`, 'success');
+        if(typeof addTerminalLine==="function")addTerminalLine(`📄 Report exported: ${a.download}`, 'success');
     }
 }
 
@@ -347,7 +347,7 @@ INSTRUCTIONS:
 }
 
 // Add terminal line
-function addTerminalLine(text, type = 'text') {
+function if(typeof addTerminalLine==="function")addTerminalLine(text, type = 'text') {
     const line = document.createElement('div');
     line.className = 'terminal-line';
     
@@ -474,14 +474,14 @@ window.executeCommand = async function executeCommand(command) {
     historyIndex = -1;
     
     // Display the command
-    addTerminalLine(`Executing: ${command}`, 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine(`Executing: ${command}`, 'info');
     
     // Simulate processing
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Parse and execute command
     const result = await processCommand(command);
-    addTerminalLine(result.message, result.type);
+    if(typeof addTerminalLine==="function")addTerminalLine(result.message, result.type);
     
     // Clear input
     commandInput.value = '';
@@ -548,8 +548,8 @@ async function processCommand(command) {
             }
             
             const fullCommand = flags ? `${tool} ${flags} ${target}` : `${tool} ${target}`;
-            addTerminalLine(`💡 ${explanation}`, 'info');
-            addTerminalLine(`⚡ Auto-executing: ${fullCommand}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`💡 ${explanation}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Auto-executing: ${fullCommand}`, 'info');
             return await executeSecurityTool(fullCommand, tool);
         }
     }
@@ -606,16 +606,16 @@ async function processCommand(command) {
 
 // Generic security tool executor for ALL Kali tools
 async function executeSecurityTool(command, toolName) {
-    addTerminalLine(`🔧 Initializing ${toolName}...`, 'info');
-    addTerminalLine(`⚡ Executing: ${command}`, 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine(`🔧 Initializing ${toolName}...`, 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Executing: ${command}`, 'info');
     
     // Long-running tool warning with progress bar
     const slowTools = ['nikto', 'sqlmap', 'dirb', 'wpscan', 'masscan', 'nmap'];
     if (slowTools.includes(toolName)) {
-        addTerminalLine(`⏳ ${toolName} scan in progress. This may take 2-10 minutes...`, 'warning');
+        if(typeof addTerminalLine==="function")addTerminalLine(`⏳ ${toolName} scan in progress. This may take 2-10 minutes...`, 'warning');
         addProgressIndicator();
     } else {
-        addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
     }
     
     try {
@@ -702,7 +702,7 @@ async function simulateNmap(command) {
 
 // Execute scan via GCP MCP Server (through proxy in production)
 async function simulateScan(command) {
-    addTerminalLine('🎯 Processing, Chief...', 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine('🎯 Processing, Chief...', 'info');
     
     try {
         // Extract target from command
@@ -710,9 +710,9 @@ async function simulateScan(command) {
         const target = parts[parts.length - 1];
         const options = '-Pn -T4 -F'; // Fast scan for "scan" command
         
-        addTerminalLine(`⚡ Executing: nmap ${options} ${target}`, 'info');
-        addTerminalLine('🥷 Connecting to Ninja...', 'info');
-        addTerminalLine(`⚡ Scanning ${target}...`, 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Executing: nmap ${options} ${target}`, 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('🥷 Connecting to Ninja...', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Scanning ${target}...`, 'info');
         
         // Use proxy endpoint in production, direct in dev
         const endpoint = CONFIG.KALI_MCP_ENDPOINT.includes('/api/kali') 
@@ -753,7 +753,7 @@ async function simulateScan(command) {
 // Process with AI (Google Gemini) - Atom Personality
 async function processWithAI(command) {
     try {
-        addTerminalLine('🤖 Atom analyzing...', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('🤖 Atom analyzing...', 'info');
         
         // Get chat context
         const chatContext = getChatContext();
@@ -764,7 +764,7 @@ async function processWithAI(command) {
         const aiMode = isCritical ? 'accurate' : CONFIG.AI_MODE;
         
         if (aiMode === 'accurate') {
-            addTerminalLine('🎯 Using ACCURATE mode (multi-AI consensus)...', 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('🎯 Using ACCURATE mode (multi-AI consensus)...', 'info');
         }
 
         // Call Multi-AI endpoint
@@ -815,9 +815,9 @@ async function processWithAI(command) {
         
         // Show AI metadata
         if (data.consensus) {
-            addTerminalLine(`🎯 Consensus response (${data.confidence}% confidence, ${data.provider})`, 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine(`🎯 Consensus response (${data.confidence}% confidence, ${data.provider})`, 'success');
         } else {
-            addTerminalLine(`🤖 Response from ${data.provider} (${data.model})`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`🤖 Response from ${data.provider} (${data.model})`, 'info');
         }
         
         return await handleAIResponse(command, data);
@@ -847,15 +847,15 @@ async function handleAIResponse(command, data) {
             
             // Display tactical intelligence if provided
             if (a.intelligence) {
-                addTerminalLine(`🧠 TACTICAL INTEL: ${a.intelligence}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`🧠 TACTICAL INTEL: ${a.intelligence}`, 'info');
             }
             
             // Multi-iteration loop until success or max attempts
             while (attempts < maxAttempts) {
                 attempts++;
                 
-                addTerminalLine(`💡 ${currentExplanation}`, 'info');
-                addTerminalLine(`⚡ ${attempts > 1 ? 'Attempt ' + attempts + ': ' : 'Auto-executing: '}${currentCommand}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`💡 ${currentExplanation}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`⚡ ${attempts > 1 ? 'Attempt ' + attempts + ': ' : 'Auto-executing: '}${currentCommand}`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
                 // Execute directly without re-parsing (AI already provided correct command)
@@ -905,14 +905,14 @@ async function handleAIResponse(command, data) {
                 
                 // SUCCESS - Found vulnerabilities or good results
                 if (hasVulnerabilities || (lastOutput.length > 300 && !hostDown && !noHostsUp)) {
-                    addTerminalLine('✅ Attack vector discovered!', 'success');
+                    if(typeof addTerminalLine==="function")addTerminalLine('✅ Attack vector discovered!', 'success');
                     
                     // Display discovered intelligence
                     if (discoveredServices.length > 0) {
-                        addTerminalLine(`🎯 DISCOVERED SERVICES: ${discoveredServices.map(s => `${s.service}:${s.port}`).join(', ')}`, 'success');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`🎯 DISCOVERED SERVICES: ${discoveredServices.map(s => `${s.service}:${s.port}`).join(', ')}`, 'success');
                     }
                     if (discoveredVulns.length > 0) {
-                        addTerminalLine(`🚨 VULNERABILITIES FOUND: ${discoveredVulns.join(', ')}`, 'warning');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`🚨 VULNERABILITIES FOUND: ${discoveredVulns.join(', ')}`, 'warning');
                     }
                     
                     saveChatInteraction(command, `Success after ${attempts} attempt(s)`, currentCommand, lastOutput);
@@ -921,7 +921,7 @@ async function handleAIResponse(command, data) {
                 
                 // FAILURE - Need to retry with smart adjustments
                 if (attempts < maxAttempts) {
-                    addTerminalLine(`🧠 ATOM AI: Adapting strategy. Attempt ${attempts}/${maxAttempts}...`, 'warning');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`🧠 ATOM AI: Adapting strategy. Attempt ${attempts}/${maxAttempts}...`, 'warning');
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
                     // GENIUS MODE: Intelligent tool progression
@@ -992,7 +992,7 @@ async function handleAIResponse(command, data) {
                         }
                     } else {
                         // Ask AI for intelligent next step
-                        addTerminalLine(`💭 Consulting AI for next strategy...`, 'info');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`💭 Consulting AI for next strategy...`, 'info');
                         const aiPrompt = `Original goal: "${command}"\nAttempt ${attempts} used: ${currentCommand}\nResult summary: ${lastOutput.substring(0, 300)}\n\nSuggest a DIFFERENT tool or method to achieve the goal. Available tools: nmap, nikto, whatweb, sqlmap, whois, dig, nslookup, curl, dirb. DO NOT USE: theharvester, dnsenum. Return JSON: {"action":"execute","command":"[full command]","explanation":"[why this approach]"}`;
                         
                         try {
@@ -1011,7 +1011,7 @@ async function handleAIResponse(command, data) {
                                 if (aiData.autoExecute && aiData.autoExecute.command) {
                                     nextCommand = aiData.autoExecute.command;
                                     nextExplanation = aiData.autoExecute.explanation || 'AI-suggested alternative approach';
-                                    addTerminalLine(`🤖 AI suggests: ${nextExplanation}`, 'info');
+                                    if(typeof addTerminalLine==="function")addTerminalLine(`🤖 AI suggests: ${nextExplanation}`, 'info');
                                 }
                             }
                         } catch (e) {
@@ -1034,7 +1034,7 @@ async function handleAIResponse(command, data) {
                     }
                 } else {
                     // Max attempts reached
-                    addTerminalLine('⚠️ Atom: Tried multiple methods, showing last results', 'warning');
+                    if(typeof addTerminalLine==="function")addTerminalLine('⚠️ Atom: Tried multiple methods, showing last results', 'warning');
                     saveChatInteraction(command, `${attempts} attempts made`, currentCommand, lastOutput);
                     return result;
                 }
@@ -1075,8 +1075,8 @@ async function handleAIResponse(command, data) {
             try {
                 const commands = JSON.parse(arrayMatch[0]);
                 if (Array.isArray(commands) && commands.length > 0) {
-                    addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
-                    addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
                     
                     // Execute each command sequentially
                     let allResults = '';
@@ -1084,8 +1084,8 @@ async function handleAIResponse(command, data) {
                         const cmd = commands[i];
                         if (cmd.action !== 'execute' || !cmd.command) continue;
                         
-                        addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
-                        addTerminalLine(`⚡ Executing...`, 'info');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Executing...`, 'info');
                         
                         await new Promise(resolve => setTimeout(resolve, 800));
                         
@@ -1102,7 +1102,7 @@ async function handleAIResponse(command, data) {
                         }
                     }
                     
-                    addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
+                    if(typeof addTerminalLine==="function")addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
                     saveChatInteraction(command, `Multi-phase attack: ${commands.length} phases`, commands.map(c => c.command).join('; '), allResults);
                     
                     return {
@@ -1117,7 +1117,7 @@ async function handleAIResponse(command, data) {
         
         // Handle multiple separate JSON objects (fallback)
         if (aiResponse.includes('{\n  "action"') && aiResponse.split('{\n  "action"').length > 2) {
-            addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
             
             // Extract all JSON command objects
             const commands = [];
@@ -1137,18 +1137,18 @@ async function handleAIResponse(command, data) {
             }
             
             if (commands.length > 0) {
-                addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
                 
                 // Execute each command sequentially
                 let allResults = '';
                 for (let i = 0; i < commands.length; i++) {
                     const cmd = commands[i];
-                    addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
-                    addTerminalLine(`💡 ${cmd.explanation}`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`💡 ${cmd.explanation}`, 'info');
                     if (cmd.intelligence) {
-                        addTerminalLine(`🧠 INTEL: ${cmd.intelligence}`, 'info');
+                        if(typeof addTerminalLine==="function")addTerminalLine(`🧠 INTEL: ${cmd.intelligence}`, 'info');
                     }
-                    addTerminalLine(`⚡ Executing: ${cmd.command}`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Executing: ${cmd.command}`, 'info');
                     
                     await new Promise(resolve => setTimeout(resolve, 800));
                     
@@ -1163,7 +1163,7 @@ async function handleAIResponse(command, data) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
                 
-                addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
+                if(typeof addTerminalLine==="function")addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
                 saveChatInteraction(command, `Multi-phase attack: ${commands.length} phases`, commands.map(c => c.command).join('; '), allResults);
                 
                 return {
@@ -1180,8 +1180,8 @@ async function handleAIResponse(command, data) {
                 
                 if (parsed.action === 'execute' && parsed.command) {
                     // AI has decided to execute a command
-                    addTerminalLine(`💡 ${parsed.explanation || 'Executing command'}`, 'info');
-                    addTerminalLine(`⚡ Auto-executing: ${parsed.command}`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`💡 ${parsed.explanation || 'Executing command'}`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`⚡ Auto-executing: ${parsed.command}`, 'info');
                     
                     // Execute the command automatically
                     await new Promise(resolve => setTimeout(resolve, 500));
@@ -1299,7 +1299,7 @@ setupExecuteHandlers();
 
 // Documentation button
 docsBtn.addEventListener('click', () => {
-    addTerminalLine('Documentation: Visit https://atoms.ninja/docs for reference', 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine('Documentation: Visit https://atoms.ninja/docs for reference', 'info');
 });
 
 // Add typing effect to command input
@@ -1454,7 +1454,7 @@ console.log('%cPowered by Atom AI & Ninja Engine', 'font-size: 12px; color: #00f
 window.setGeminiAPIKey = function(apiKey) {
     CONFIG.GEMINI_API_KEY = apiKey;
     console.log('%c✓ Gemini API Key configured successfully!', 'color: #10B981; font-weight: bold;');
-    addTerminalLine('Google Gemini AI authentication successful.', 'success');
+    if(typeof addTerminalLine==="function")addTerminalLine('Google Gemini AI authentication successful.', 'success');
 };
 
 // Clear chat history helper
@@ -1462,7 +1462,7 @@ window.clearChatHistory = function() {
     chatHistory = [];
     localStorage.removeItem('atomsNinjaChatHistory');
     console.log('%c✓ Chat history cleared!', 'color: #10B981; font-weight: bold;');
-    addTerminalLine('Chat memory cleared. Starting fresh conversation.', 'info');
+    if(typeof addTerminalLine==="function")addTerminalLine('Chat memory cleared. Starting fresh conversation.', 'info');
 };
 
 // View chat history helper
@@ -1499,7 +1499,7 @@ window.viewSession = function() {
 window.startNewSession = function() {
     startNewSession();
     console.log('%c✓ New session started!', 'color: #10B981; font-weight: bold;');
-    addTerminalLine('New penetration testing session initialized.', 'success');
+    if(typeof addTerminalLine==="function")addTerminalLine('New penetration testing session initialized.', 'success');
 };
 
 window.exportSession = function() {
@@ -1583,7 +1583,7 @@ Tool: Atoms Ninja Cybersecurity Platform
     a.download = `pentest-report-${Date.now()}.txt`;
     a.click();
     
-    addTerminalLine('✓ Penetration testing report generated and downloaded!', 'success');
+    if(typeof addTerminalLine==="function")addTerminalLine('✓ Penetration testing report generated and downloaded!', 'success');
 };
 
 // Display instructions on load
@@ -1660,7 +1660,7 @@ saveGeminiKey.addEventListener('click', () => {
     statusDiv.className = 'status-message success';
     statusDiv.textContent = '✅ API key saved successfully! AI features are now enabled.';
     
-    addTerminalLine('Google Gemini AI configured and ready.', 'success');
+    if(typeof addTerminalLine==="function")addTerminalLine('Google Gemini AI configured and ready.', 'success');
     
     setTimeout(() => {
         statusDiv.style.display = 'none';
@@ -1689,7 +1689,7 @@ testMCPConnection.addEventListener('click', async () => {
         statusDiv.className = 'status-message success';
         statusDiv.textContent = '✅ Connected to Kali Linux MCP Server';
         
-        addTerminalLine(`MCP Server connected at ${endpoint}`, 'success');
+        if(typeof addTerminalLine==="function")addTerminalLine(`MCP Server connected at ${endpoint}`, 'success');
     } catch (error) {
         statusDiv.className = 'status-message error';
         statusDiv.textContent = '❌ Connection failed. Please check the endpoint and try again.';
@@ -1710,7 +1710,7 @@ window.addEventListener('load', () => {
         if (typeof AtomsNinjaConfig !== 'undefined') {
             AtomsNinjaConfig.gemini.apiKey = savedApiKey;
         }
-        addTerminalLine('Loaded saved Google Gemini API configuration.', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('Loaded saved Google Gemini API configuration.', 'info');
     }
     
     if (savedEndpoint) {
@@ -1738,7 +1738,7 @@ document.querySelectorAll('.quick-commands code').forEach(codeEl => {
 // CVE Analysis and Visualization
 async function analyzeCVEs(scanOutput, originalCommand) {
     try {
-        addTerminalLine('🔍 Analyzing for known vulnerabilities...', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('🔍 Analyzing for known vulnerabilities...', 'info');
         
         const response = await fetch(`${CONFIG.BACKEND_API_URL}/cve-lookup`, {
             method: 'POST',
@@ -1756,39 +1756,39 @@ async function analyzeCVEs(scanOutput, originalCommand) {
             atomSession.saveCurrentSession();
             
             // Display formatted results
-            addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
-            addTerminalLine('🎯 VULNERABILITY ANALYSIS', 'success');
-            addTerminalLine(`${'═'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('🎯 VULNERABILITY ANALYSIS', 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine(`${'═'.repeat(60)}`, 'info');
             
-            addTerminalLine(`\n${data.summary}`, 'warning');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${data.summary}`, 'warning');
             
-            addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
-            addTerminalLine('📋 DETECTED SOFTWARE:', 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('📋 DETECTED SOFTWARE:', 'info');
             for (const sw of data.detectedSoftware) {
-                addTerminalLine(`  • ${sw.software} ${sw.version}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`  • ${sw.software} ${sw.version}`, 'info');
             }
             
-            addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
-            addTerminalLine('🔴 VULNERABILITIES FOUND:', 'error');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('🔴 VULNERABILITIES FOUND:', 'error');
             for (const vuln of data.vulnerabilities.slice(0, 5)) {
                 const severity = vuln.severity === 'CRITICAL' ? '🔴' : vuln.severity === 'HIGH' ? '🟠' : '🟡';
-                addTerminalLine(`\n  ${severity} ${vuln.cve} [${vuln.severity}]`, 'error');
-                addTerminalLine(`     ${vuln.description}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`\n  ${severity} ${vuln.cve} [${vuln.severity}]`, 'error');
+                if(typeof addTerminalLine==="function")addTerminalLine(`     ${vuln.description}`, 'info');
                 if (vuln.exploitable) {
-                    addTerminalLine(`     ⚡ EXPLOIT AVAILABLE`, 'warning');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`     ⚡ EXPLOIT AVAILABLE`, 'warning');
                 }
             }
             
             if (data.vulnerabilities.length > 5) {
-                addTerminalLine(`\n  ... and ${data.vulnerabilities.length - 5} more vulnerabilities`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`\n  ... and ${data.vulnerabilities.length - 5} more vulnerabilities`, 'info');
             }
             
-            addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
             
             // Suggest attack chains
             setTimeout(() => suggestAttackChain(scanOutput, data.vulnerabilities), 1500);
         } else {
-            addTerminalLine('✅ No known critical vulnerabilities detected.', 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine('✅ No known critical vulnerabilities detected.', 'success');
         }
     } catch (error) {
         console.error('CVE analysis error:', error);
@@ -1798,7 +1798,7 @@ async function analyzeCVEs(scanOutput, originalCommand) {
 // Smart Attack Chain Suggestions
 async function suggestAttackChain(scanOutput, vulnerabilities) {
     try {
-        addTerminalLine('🎯 Generating attack chain suggestions...', 'info');
+        if(typeof addTerminalLine==="function")addTerminalLine('🎯 Generating attack chain suggestions...', 'info');
         
         const target = extractTarget(scanOutput);
         
@@ -1813,27 +1813,27 @@ async function suggestAttackChain(scanOutput, vulnerabilities) {
         const data = await response.json();
         
         if (data.chains && data.chains.length > 0) {
-            addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
-            addTerminalLine('⚔️  SUGGESTED ATTACK CHAINS', 'success');
-            addTerminalLine(`${'═'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'═'.repeat(60)}`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('⚔️  SUGGESTED ATTACK CHAINS', 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine(`${'═'.repeat(60)}`, 'info');
             
             for (const chain of data.chains) {
-                addTerminalLine(`\n📌 ${chain.target}:`, 'warning');
+                if(typeof addTerminalLine==="function")addTerminalLine(`\n📌 ${chain.target}:`, 'warning');
                 for (const step of chain.steps.slice(0, 3)) {
                     const risk = step.risk === 'CRITICAL' ? '🔴' : step.risk === 'HIGH' ? '🟠' : '🟡';
-                    addTerminalLine(`\n  ${risk} Step ${step.step}: ${step.action}`, 'info');
-                    addTerminalLine(`     $ ${step.command}`, 'success');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`\n  ${risk} Step ${step.step}: ${step.action}`, 'info');
+                    if(typeof addTerminalLine==="function")addTerminalLine(`     $ ${step.command}`, 'success');
                 }
             }
             
             if (data.aiSuggestions) {
-                addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
-                addTerminalLine('🤖 AI ANALYSIS:', 'info');
-                addTerminalLine(data.aiSuggestions, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(`\n${'─'.repeat(60)}`, 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine('🤖 AI ANALYSIS:', 'info');
+                if(typeof addTerminalLine==="function")addTerminalLine(data.aiSuggestions, 'info');
             }
             
-            addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
-            addTerminalLine('💡 Type any command above to execute it, Chief.', 'success');
+            if(typeof addTerminalLine==="function")addTerminalLine(`\n${'═'.repeat(60)}\n`, 'info');
+            if(typeof addTerminalLine==="function")addTerminalLine('💡 Type any command above to execute it, Chief.', 'success');
         }
     } catch (error) {
         console.error('Attack chain error:', error);

@@ -563,6 +563,12 @@ async function executeSecurityTool(command, toolName) {
     addTerminalLine(`⚡ Executing: ${command}`, 'info');
     addTerminalLine('🔍 Connecting to Kali MCP, Chief...', 'info');
     
+    // Long-running tool warning
+    const slowTools = ['nikto', 'sqlmap', 'dirb', 'wpscan', 'masscan'];
+    if (slowTools.includes(toolName)) {
+        addTerminalLine(`⏳ ${toolName} may take 2-10 minutes. Please wait...`, 'warning');
+    }
+    
     try {
         // Parse command into tool and arguments
         const parts = command.trim().split(/\s+/);
@@ -572,14 +578,21 @@ async function executeSecurityTool(command, toolName) {
         console.log('🔧 DEBUG - Tool:', tool, 'Args:', args);
         console.log('🔧 DEBUG - Endpoint:', CONFIG.KALI_MCP_ENDPOINT);
         
+        // Create abort controller with 10 minute timeout (600s)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 600000);
+        
         const response = await fetch(`${CONFIG.KALI_MCP_ENDPOINT}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 tool: tool,
                 args: args
-            })
+            }),
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('🔧 DEBUG - Response status:', response.status);
         
@@ -617,6 +630,15 @@ async function executeSecurityTool(command, toolName) {
         };
     } catch (error) {
         console.error('🔧 DEBUG - Full error:', error);
+        
+        // Handle timeout specifically
+        if (error.name === 'AbortError') {
+            return {
+                message: `⏱️ ${toolName} timeout after 10 minutes. Target may be slow or blocking scans.`,
+                type: 'error'
+            };
+        }
+        
         return {
             message: `❌ ${toolName} failed: ${error.message}`,
             type: 'error'

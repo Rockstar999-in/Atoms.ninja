@@ -955,88 +955,57 @@ function setupExecuteHandlers() {
     
     console.log('✓ Setting up execute handlers...');
     
-    // Remove ALL existing listeners by cloning elements
-    const newBtn = btn.cloneNode(true);
-    const newInput = input.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-    input.parentNode.replaceChild(newInput, input);
-    
-    // Get fresh references
-    const executeButton = document.getElementById('executeBtn');
-    const commandField = document.getElementById('commandInput');
-    
-    // Add click handler with proper event binding
-    executeButton.addEventListener('click', function(e) {
+    // Simple, reliable click handler
+    btn.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation();
-        console.log('🖱️ Execute button clicked!');
-        const command = commandField.value.trim();
+        const command = input.value.trim();
         if (command && !isExecuting) {
             console.log('➡️ Executing:', command);
             executeCommand(command);
-        } else if (!command) {
-            console.log('⚠️ No command entered');
-        } else if (isExecuting) {
-            console.log('⚠️ Already executing a command');
         }
-    }, false);
+    });
     
-    // Enter key to execute - both keydown AND keypress for maximum compatibility
-    commandField.addEventListener('keydown', function(e) {
+    // Enter key handler - simplified and reliable
+    input.addEventListener('keydown', function(e) {
+        // Execute on Enter (but allow Shift+Enter for newlines)
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            e.stopPropagation();
-            console.log('⏎ Enter key pressed!');
-            const command = commandField.value.trim();
+            const command = input.value.trim();
             if (command && !isExecuting) {
-                console.log('➡️ Executing:', command);
+                console.log('⏎ Enter pressed, executing...');
                 executeCommand(command);
             }
-        } else if (e.key === 'ArrowUp') {
+            return false;
+        }
+        
+        // Command history with arrow keys
+        if (e.key === 'ArrowUp') {
             e.preventDefault();
             if (historyIndex < commandHistory.length - 1) {
                 historyIndex++;
-                commandField.value = commandHistory[historyIndex];
+                input.value = commandHistory[historyIndex];
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
             if (historyIndex > 0) {
                 historyIndex--;
-                commandField.value = commandHistory[historyIndex];
+                input.value = commandHistory[historyIndex];
             } else if (historyIndex === 0) {
                 historyIndex = -1;
-                commandField.value = '';
+                input.value = '';
             }
         }
-    }, false);
-    
-    // Backup: Also listen for keypress as fallback
-    commandField.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey && !isExecuting) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('⏎ Enter keypress detected!');
-            const command = commandField.value.trim();
-            if (command) {
-                console.log('➡️ Executing:', command);
-                executeCommand(command);
-            }
-        }
-    }, false);
+    });
     
     console.log('✅ Execute handlers initialized successfully');
 }
 
-// Call setup IMMEDIATELY when script loads
+// Call setup when DOM is ready - only once
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', setupExecuteHandlers);
 } else {
-    // DOM already loaded
     setupExecuteHandlers();
 }
-
-// Also call again after a delay to ensure DOM is fully ready
-setTimeout(setupExecuteHandlers, 1000);
 
 // Launch console button
 launchBtn.addEventListener('click', () => {

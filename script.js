@@ -791,11 +791,17 @@ async function handleAIResponse(command, data) {
                 const result = await processCommand(currentCommand);
                 lastOutput = result.message || '';
                 
-                // Check for success indicators
+                // Check for success indicators (more comprehensive)
                 const hasVulnerabilities = lastOutput.includes('VULNERABLE') || 
                                           lastOutput.includes('vulnerable') ||
                                           lastOutput.includes('exploit') ||
                                           lastOutput.includes('CVE-') ||
+                                          lastOutput.includes('XSS') ||
+                                          lastOutput.includes('SQL injection') ||
+                                          lastOutput.includes('Apache') ||
+                                          lastOutput.includes('nginx') ||
+                                          lastOutput.includes('IIS') ||
+                                          lastOutput.match(/\d+\/tcp.*open/i) ||
                                           (lastOutput.includes('open') && lastOutput.length > 300);
                 
                 // Check for failures
@@ -803,8 +809,9 @@ async function handleAIResponse(command, data) {
                                 lastOutput.includes('Note: Host seems down');
                 const noHostsUp = lastOutput.includes('0 hosts up');
                 const timeout = lastOutput.includes('timeout') || lastOutput.includes('timed out');
-                const refused = lastOutput.includes('refused') || lastOutput.includes('filtered');
-                const noResults = lastOutput.length < 200 && !hasVulnerabilities;
+                const refused = lastOutput.includes('refused') || lastOutput.includes('Connection refused');
+                const filtered = lastOutput.includes('filtered') && !lastOutput.includes('open');
+                const noResults = lastOutput.length < 150 && !hasVulnerabilities;
                 
                 // SUCCESS - Found vulnerabilities or good results
                 if (hasVulnerabilities || (lastOutput.length > 300 && !hostDown && !noHostsUp)) {
@@ -815,62 +822,86 @@ async function handleAIResponse(command, data) {
                 
                 // FAILURE - Need to retry with smart adjustments
                 if (attempts < maxAttempts) {
-                    addTerminalLine(`🧠 Atom: Method ${attempts} didn't find vulnerabilities. Analyzing...`, 'warning');
+                    addTerminalLine(`🧠 Atom: Method ${attempts} didn't achieve goal. Iterating...`, 'warning');
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     
                     // SMART RETRY LOGIC - Pattern matching for common issues
                     let nextCommand = '';
                     let nextExplanation = '';
+                    const target = extractTarget(currentCommand);
                     
                     if (hostDown || noHostsUp) {
                         // Host blocking pings - add -Pn
                         if (!currentCommand.includes('-Pn')) {
                             nextCommand = currentCommand.replace('nmap', 'nmap -Pn');
-                            nextExplanation = 'Bypassing ping check with -Pn flag';
+                            nextExplanation = 'Host may be blocking ICMP - bypassing with -Pn';
+                        } else if (!currentCommand.includes('http://') && !currentCommand.includes('https://')) {
+                            // Try web tools on HTTP/HTTPS
+                            nextCommand = `whatweb http://${target}`;
+                            nextExplanation = 'Switching to HTTP-based web fingerprinting';
                         } else {
-                            // Already tried -Pn, switch to different tool
-                            if (currentCommand.includes('nmap')) {
-                                nextCommand = `nikto -h ${extractTarget(currentCommand)}`;
-                                nextExplanation = 'Switching to Nikto web vulnerability scanner';
-                            } else {
-                                nextCommand = `nmap -Pn -sV -sC ${extractTarget(currentCommand)}`;
-                                nextExplanation = 'Deep scan with service detection and default scripts';
-                            }
+                            nextCommand = `curl -I http://${target}`;
+                            nextExplanation = 'Checking HTTP headers directly with curl';
+                        }
+                    } else if (filtered && currentCommand.includes('nmap')) {
+                        // Ports filtered, try service-specific tools
+                        if (attempts === 2) {
+                            nextCommand = `whatweb -a 3 http://${target}`;
+                            nextExplanation = 'Aggressive web technology detection';
+                        } else {
+                            nextCommand = `nikto -h http://${target}`;
+                            nextExplanation = 'Web vulnerability scan with Nikto';
                         }
                     } else if (noResults || timeout) {
-                        // Switch tools strategically
-                        const target = extractTarget(currentCommand);
+                        // Switch tools strategically based on what was tried
                         if (currentCommand.includes('nikto')) {
-                            nextCommand = `nmap -Pn -sV --script=vuln,exploit ${target}`;
-                            nextExplanation = 'Switching to Nmap vulnerability scripts';
+                            nextCommand = `nmap -Pn -sV --script=vuln ${target}`;
+                            nextExplanation = 'Deep vulnerability scan with Nmap NSE scripts';
+                        } else if (currentCommand.includes('whatweb')) {
+                            nextCommand = `nmap -Pn -p 80,443,8080,8443 -sV ${target}`;
+                            nextExplanation = 'Scanning common web ports with service detection';
                         } else if (currentCommand.includes('nmap') && !currentCommand.includes('--script')) {
-                            nextCommand = `nmap -Pn --script=http-vuln-*,ssl-* ${target}`;
-                            nextExplanation = 'Trying HTTP and SSL vulnerability scripts';
+                            nextCommand = `nmap -Pn -sV --script=http-*,ssl-* ${target}`;
+                            nextExplanation = 'Running HTTP and SSL vulnerability scripts';
+                        } else if (currentCommand.includes('nmap') && !currentCommand.includes('-p-')) {
+                            nextCommand = `nmap -Pn -p- --min-rate 1000 ${target}`;
+                            nextExplanation = 'Fast full port scan (all 65535 ports)';
                         } else {
-                            nextCommand = `whatweb -v ${target}`;
-                            nextExplanation = 'Scanning web technologies for known vulnerabilities';
+                            nextCommand = `dnsenum --enum ${target}`;
+                            nextExplanation = 'DNS enumeration to find subdomains';
                         }
                     } else {
-                        // Ask AI for suggestion
-                        const aiPrompt = `Goal: "${command}". Tried: "${currentCommand}". Output: "${lastOutput.substring(0, 200)}". Suggest DIFFERENT tool/approach. Return JSON: {"action":"execute","command":"[cmd]","explanation":"[why]"}`;
+                        // Ask AI for intelligent next step
+                        addTerminalLine(`💭 Consulting AI for next strategy...`, 'info');
+                        const aiPrompt = `Original goal: "${command}"\nAttempt ${attempts} used: ${currentCommand}\nResult summary: ${lastOutput.substring(0, 300)}\n\nSuggest a DIFFERENT tool or method to achieve the goal. Available tools: nmap, nikto, whatweb, sqlmap, dnsenum, dirb, curl, dig. Return JSON: {"action":"execute","command":"[full command]","explanation":"[why this approach]"}`;
                         
                         try {
-                            const aiResponse = await fetch(`${CONFIG.BACKEND_API_URL}/openai`, {
+                            const aiResponse = await fetch(CONFIG.AI_ENDPOINT, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ message: aiPrompt })
+                                body: JSON.stringify({ 
+                                    message: aiPrompt,
+                                    chatHistory: [],
+                                    mode: 'fast'
+                                })
                             });
                             
                             if (aiResponse.ok) {
                                 const aiData = await aiResponse.json();
-                                if (aiData.autoExecute) {
+                                if (aiData.autoExecute && aiData.autoExecute.command) {
                                     nextCommand = aiData.autoExecute.command;
-                                    nextExplanation = aiData.autoExecute.explanation;
+                                    nextExplanation = aiData.autoExecute.explanation || 'AI-suggested alternative approach';
+                                    addTerminalLine(`🤖 AI suggests: ${nextExplanation}`, 'info');
                                 }
                             }
                         } catch (e) {
-                            // Fallback if AI fails
-                            nextCommand = `nmap -Pn -p- ${extractTarget(currentCommand)}`;
-                            nextExplanation = 'Full port scan to find all open services';
+                            console.log('AI suggestion failed, using fallback');
+                        }
+                        
+                        // Fallback if AI doesn't provide suggestion
+                        if (!nextCommand) {
+                            nextCommand = `dig ${target} ANY`;
+                            nextExplanation = 'DNS record enumeration as alternative approach';
                         }
                     }
                     

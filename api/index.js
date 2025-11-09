@@ -121,11 +121,23 @@ GENIUS EXAMPLES:
 - "find origin ip for target.com" → Discover real server behind CDN
 
 WAF BYPASS COMMANDS:
-When user says "bypass waf", "bypass cloudflare", "evade waf", "find origin ip":
+When user says "bypass waf", "bypass cloudflare", "evade waf", "find origin ip", "implement all methods":
 [
-  {"action":"execute","command":"dig target.com ANY","explanation":"DNS enumeration for origin discovery"},
-  {"action":"execute","command":"nmap -sV --script=http-headers target.com","explanation":"Header analysis for protection identification"},
-  {"action":"execute","command":"curl -H 'X-Originating-IP: 127.0.0.1' http://target.com","explanation":"Header spoofing test"}
+  {"action":"execute","command":"dig rndsoftech.com MX","explanation":"Mail server discovery (often unprotected)"},
+  {"action":"execute","command":"nslookup -type=txt rndsoftech.com","explanation":"TXT record enumeration"},
+  {"action":"execute","command":"curl -s 'https://crt.sh/?q=%.rndsoftech.com&output=json' | head -50","explanation":"Certificate transparency logs"},
+  {"action":"execute","command":"nmap -Pn --script dns-brute rndsoftech.com","explanation":"Subdomain brute force"},
+  {"action":"execute","command":"curl -s -I http://rndsoftech.com","explanation":"HTTP header fingerprinting"},
+  {"action":"execute","command":"curl -s -H 'User-Agent: Googlebot/2.1' http://rndsoftech.com","explanation":"Bot user-agent bypass"},
+  {"action":"execute","command":"curl -s --http2 https://rndsoftech.com","explanation":"HTTP/2 protocol test"}
+]
+
+ADVANCED BYPASS:
+For "aggressive bypass", "full evasion", "deep bypass":
+[
+  {"action":"execute","command":"sqlmap -u 'http://target.com?id=1' --tamper=space2comment --random-agent","explanation":"SQL injection with WAF evasion"},
+  {"action":"execute","command":"nmap -Pn -T1 --scan-delay 5s --randomize-hosts target.com","explanation":"Stealth scan with evasion"},
+  {"action":"execute","command":"dirb http://target.com -w /usr/share/wordlists/dirb/common.txt -a 'Mozilla/5.0'","explanation":"Directory fuzzing with custom UA"}
 ]
 
 MILITARY RESPONSES:

@@ -1080,6 +1080,57 @@ async function handleAIResponse(command, data) {
         }
         
         // Check if AI returned multiple commands (genius mode)
+        // Handle both array format [{"action":...}] and multiple objects
+        if (aiResponse.startsWith('[') && aiResponse.includes('"action"')) {
+            // Array format
+            try {
+                const commands = JSON.parse(aiResponse);
+                if (Array.isArray(commands) && commands.length > 0) {
+                    addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
+                    addTerminalLine(`📋 ATTACK PLAN: ${commands.length} phases identified`, 'info');
+                    
+                    // Execute each command sequentially
+                    let allResults = '';
+                    for (let i = 0; i < commands.length; i++) {
+                        const cmd = commands[i];
+                        if (cmd.action !== 'execute' || !cmd.command) continue;
+                        
+                        addTerminalLine(`\n━━━ PHASE ${i + 1}/${commands.length} ━━━`, 'info');
+                        addTerminalLine(`💡 ${cmd.explanation}`, 'info');
+                        if (cmd.intelligence) {
+                            addTerminalLine(`🧠 INTEL: ${cmd.intelligence}`, 'info');
+                        }
+                        addTerminalLine(`⚡ Executing: ${cmd.command}`, 'info');
+                        
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        
+                        // Execute directly
+                        const parts = cmd.command.trim().split(/\s+/);
+                        const toolName = parts[0];
+                        const result = await executeSecurityTool(cmd.command, toolName);
+                        
+                        allResults += `\n\n=== PHASE ${i + 1}: ${cmd.explanation} ===\n${result.message}\n`;
+                        
+                        // Brief pause between phases
+                        if (i < commands.length - 1) {
+                            await new Promise(resolve => setTimeout(resolve, 1500));
+                        }
+                    }
+                    
+                    addTerminalLine('\n━━━ ATTACK CHAIN COMPLETE ━━━', 'success');
+                    saveChatInteraction(command, `Multi-phase attack: ${commands.length} phases`, commands.map(c => c.command).join('; '), allResults);
+                    
+                    return {
+                        message: allResults,
+                        type: 'success'
+                    };
+                }
+            } catch (e) {
+                console.error('Failed to parse array format:', e);
+            }
+        }
+        
+        // Handle multiple separate JSON objects (fallback)
         if (aiResponse.includes('{\n  "action"') && aiResponse.split('{\n  "action"').length > 2) {
             addTerminalLine('🧠 GENIUS MODE: Multi-phase attack chain detected!', 'success');
             

@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Atoms Ninja - AI Security Platform</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="apple-touch-icon" href="/logo.png">
@@ -20,13 +24,6 @@
             <nav class="nav">
                 <a href="#features" class="nav-link">Features</a>
                 <a href="#pricing" class="nav-link">Pricing</a>
-                <button class="btn-secondary" id="settingsBtn">
-                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path d="M12 1v6m0 6v6m5.196-14.196l-4.243 4.243m0 5.656l4.243 4.243M23 12h-6m-6 0H1m20.196-5.196l-4.243 4.243m0 5.656l4.243 4.243"/>
-                    </svg>
-                    Settings
-                </button>
                 <button class="btn-primary">Get Started</button>
             </nav>
         </header>
@@ -231,55 +228,6 @@
                 <p>© 2025 Atoms.Ninja - Elite AI Cybersecurity Platform. All rights reserved.</p>
             </div>
         </footer>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚙️ Configuration</h2>
-                <button class="modal-close" id="closeModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="settings-section">
-                    <h3>🤖 Google Gemini AI</h3>
-                    <p class="settings-description">Configure your Gemini API key for AI-powered analysis</p>
-                    <div class="input-group">
-                        <label for="geminiApiKey">API Key</label>
-                        <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API key">
-                        <small>
-                            <strong>Option 1:</strong> AI Studio key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> (starts with AIza...)<br>
-                            <strong>Option 2:</strong> Google Cloud API key - Must enable <a href="https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com" target="_blank">Generative Language API</a>
-                        </small>
-                    </div>
-                    <button class="btn-primary" id="saveGeminiKey">Save API Key</button>
-                    <div id="apiKeyStatus" class="status-message"></div>
-                </div>
-                
-                <div class="settings-section">
-                    <h3>🥷 Ninja Engine</h3>
-                    <p class="settings-description">Configure Ninja backend endpoint</p>
-                    <div class="input-group">
-                        <label for="mcpEndpoint">Server Endpoint</label>
-                        <input type="text" id="mcpEndpoint" placeholder="http://localhost:3000" value="http://localhost:3000">
-                    </div>
-                    <button class="btn-primary" id="testMCPConnection">Test Connection</button>
-                    <div id="mcpStatus" class="status-message"></div>
-                </div>
-
-                <div class="settings-section">
-                    <h3>ℹ️ Quick Start - Try These!</h3>
-                    <div class="quick-commands">
-                        <code>What's the best approach for testing a financial web application?</code>
-                        <code>Design a security architecture for microservices</code>
-                        <code>How do I conduct WiFi penetration testing ethically?</code>
-                        <code>nmap -sV 192.168.1.1</code>
-                        <code>Explain the OWASP Top 10 and mitigation strategies</code>
-                        <code>What forensic tools should I use for memory analysis?</code>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="script.js"></script>

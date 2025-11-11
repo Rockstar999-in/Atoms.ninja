@@ -32,6 +32,8 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    -webkit-tap-highlight-color: rgba(0, 255, 0, 0.2);
+    -webkit-touch-callout: none;
 }
 
 /* Matrix Rain Effect Background */
@@ -135,6 +137,12 @@ button {
     background: var(--color-bg);
     color: var(--color-neon-green);
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+button:active {
+    transform: scale(0.97);
 }
 
 .btn-primary {
@@ -353,12 +361,15 @@ button {
     margin-bottom: 12px;
     transition: all 0.3s ease;
     text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+    -webkit-appearance: none;
+    touch-action: manipulation;
 }
 
 .prompt-input:focus {
     outline: none;
     border-color: var(--color-neon-bright);
     box-shadow: var(--border-glow);
+    font-size: 16px; /* Prevents zoom on iOS */
 }
 
 .prompt-input::placeholder {
@@ -736,6 +747,22 @@ button {
 }
 
 /* Responsive Design */
+
+/* Ensure minimum touch target sizes for mobile */
+@media (max-width: 768px) {
+    button, .btn-primary, .btn-secondary, .btn-large, .btn-outline {
+        min-height: 44px;
+        min-width: 44px;
+        touch-action: manipulation;
+    }
+    
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
+
 @media (max-width: 1024px) {
     .hero {
         grid-template-columns: 1fr;
@@ -750,46 +777,205 @@ button {
         grid-template-columns: 1fr;
         gap: 40px;
     }
+    
+    .container {
+        padding: 0 16px;
+    }
 }
 
+/* Mobile-first optimizations for tablets and small screens */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 12px;
+    }
+    
+    .header {
+        padding: 16px 0;
+    }
+    
     .nav {
-        gap: 15px;
+        gap: 12px;
     }
     
     .nav-link {
         display: none;
     }
     
+    .logo {
+        font-size: 20px;
+    }
+    
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .hero {
+        padding: 40px 0;
+    }
+    
     .hero-title {
-        font-size: 36px;
+        font-size: 32px;
+        line-height: 1.2;
+    }
+    
+    .badge {
+        font-size: 11px;
+        padding: 6px 12px;
+    }
+    
+    .hero-description {
+        font-size: 14px;
     }
     
     .hero-actions {
         flex-direction: column;
+        gap: 12px;
     }
     
     .btn-large {
         width: 100%;
         justify-content: center;
+        padding: 14px 24px;
+        font-size: 13px;
     }
     
     .stats {
         flex-direction: column;
-        gap: 24px;
+        gap: 20px;
+        padding-top: 24px;
+    }
+    
+    .stat-number {
+        font-size: 28px;
+    }
+    
+    .stat-label {
+        font-size: 13px;
+    }
+    
+    .demo-card {
+        border-radius: 12px;
+    }
+    
+    .demo-content {
+        padding: 16px;
+    }
+    
+    .prompt-input {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .generate-btn {
+        padding: 12px;
+        font-size: 13px;
+    }
+    
+    .terminal-output {
+        font-size: 12px;
+        padding: 16px;
+        min-height: 250px;
+        max-height: 400px;
     }
     
     .section-title {
-        font-size: 36px;
+        font-size: 32px;
+    }
+    
+    .section-description {
+        font-size: 16px;
+    }
+    
+    .features {
+        padding: 60px 0;
+    }
+    
+    .section-header {
+        margin-bottom: 40px;
     }
     
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .feature-card {
+        padding: 24px;
+    }
+    
+    .feature-title {
+        font-size: 18px;
+    }
+    
+    .feature-description {
+        font-size: 14px;
+    }
+    
+    .footer {
+        padding: 40px 0 20px;
+        margin-top: 60px;
     }
     
     .footer-links {
         grid-template-columns: 1fr;
         gap: 24px;
+    }
+    
+    .footer-column h4 {
+        font-size: 15px;
+    }
+    
+    .footer-column a {
+        font-size: 13px;
+    }
+}
+
+/* Extra small mobile devices (iPhone SE, older Android phones) */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 28px;
+    }
+    
+    .section-title {
+        font-size: 28px;
+    }
+    
+    .demo-header {
+        padding: 10px 16px;
+    }
+    
+    .demo-title {
+        font-size: 10px;
+    }
+    
+    .terminal-output {
+        font-size: 11px;
+        padding: 12px;
+    }
+    
+    .btn-large {
+        padding: 12px 20px;
+        font-size: 12px;
+    }
+}
+
+/* Landscape mode optimization for mobile devices */
+@media (max-width: 896px) and (orientation: landscape) {
+    .hero {
+        padding: 30px 0;
+    }
+    
+    .hero-title {
+        font-size: 32px;
+    }
+    
+    .terminal-output {
+        max-height: 300px;
+    }
+    
+    .features {
+        padding: 40px 0;
     }
 }
 
